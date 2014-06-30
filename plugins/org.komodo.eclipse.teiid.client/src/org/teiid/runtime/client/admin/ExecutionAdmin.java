@@ -27,17 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.wst.server.core.IServer;
+import net.sf.saxon.Platform;
+import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
-import org.jboss.ide.eclipse.as.core.server.v7.management.AS7ManagementDetails;
-import org.jboss.ide.eclipse.as.management.core.JBoss7ManagerUtil;
-import org.jboss.ide.eclipse.as.management.core.ModelDescriptionConstants;
 import org.komodo.spi.annotation.AnnotationUtils;
 import org.komodo.spi.annotation.Removed;
 import org.komodo.spi.outcome.IOutcome;
@@ -57,6 +49,7 @@ import org.komodo.spi.runtime.TeiidExecutionException;
 import org.komodo.spi.runtime.TeiidPropertyDefinition;
 import org.komodo.spi.runtime.version.ITeiidVersion;
 import org.komodo.spi.runtime.version.TeiidVersion.Version;
+import org.komodo.utils.KLog;
 import org.teiid.adminapi.Admin;
 import org.teiid.adminapi.PropertyDefinition;
 import org.teiid.adminapi.Translator;
@@ -64,7 +57,6 @@ import org.teiid.adminapi.VDB;
 import org.teiid.core.util.ArgCheck;
 import org.teiid.jdbc.TeiidDriver;
 import org.teiid.runtime.client.Messages;
-import org.teiid.runtime.client.TeiidRuntimePlugin;
 
 
 
@@ -394,7 +386,7 @@ public class ExecutionAdmin implements IExecutionAdmin {
 
         } catch (Exception ex) {
             // Failed to get mapping
-            TeiidRuntimePlugin.logError(getClass().getSimpleName(), ex, Messages.getString(Messages.ExecutionAdmin.failedToGetDriverMappings, requestDriverClass));
+            KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.failedToGetDriverMappings, requestDriverClass), ex);
         }
 
         return null;
@@ -419,22 +411,22 @@ public class ExecutionAdmin implements IExecutionAdmin {
                     try {
                         iStream = new FileInputStream(theFile);
                     } catch (FileNotFoundException ex) {
-                        TeiidRuntimePlugin.logError(getClass().getSimpleName(), ex, Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, theFile.getPath()));
+                        KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, theFile.getPath()), ex);
                         continue;
                     }
                     try {
                         adminSpec.deploy(admin, fileName, iStream);
                     } catch (Exception ex) {
                         // Jar deployment failed
-                        TeiidRuntimePlugin.logError(getClass().getSimpleName(), ex, Messages.getString(Messages.ExecutionAdmin.jarDeploymentFailed, theFile.getPath()));
+                        KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentFailed, theFile.getPath()), ex);
                     }
                 } else {
                     // Could not read the file
-                    TeiidRuntimePlugin.logError(getClass().getSimpleName(), Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotReadable, theFile.getPath()));
+                    KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotReadable, theFile.getPath()));
                 }
             } else {
                 // The file was not found
-                TeiidRuntimePlugin.logError(getClass().getSimpleName(), Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, theFile.getPath()));
+                KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, theFile.getPath()));
             }
 
         }
@@ -449,7 +441,7 @@ public class ExecutionAdmin implements IExecutionAdmin {
                 try {
                     iStream = new FileInputStream(jarOrRarFile);
                 } catch (FileNotFoundException ex) {
-                    TeiidRuntimePlugin.logError(getClass().getSimpleName(), ex, Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, jarOrRarFile.getPath()));
+                    KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, jarOrRarFile.getPath()), ex);
                     throw ex;
                 }
                 try {
@@ -457,16 +449,16 @@ public class ExecutionAdmin implements IExecutionAdmin {
                     refreshDataSourceTypes();
                 } catch (Exception ex) {
                     // Jar deployment failed
-                    TeiidRuntimePlugin.logError(getClass().getSimpleName(), ex, Messages.getString(Messages.ExecutionAdmin.jarDeploymentFailed, jarOrRarFile.getPath()));
+                    KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentFailed, jarOrRarFile.getPath()), ex);
                     throw ex;
                 }
             } else {
                 // Could not read the file
-                TeiidRuntimePlugin.logError(getClass().getSimpleName(), Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotReadable, jarOrRarFile.getPath()));
+                KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotReadable, jarOrRarFile.getPath()));
             }
         } else {
             // The file was not found
-            TeiidRuntimePlugin.logError(getClass().getSimpleName(), Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, jarOrRarFile.getPath()));
+            KLog.getLogger().error(Messages.getString(Messages.ExecutionAdmin.jarDeploymentJarNotFound, jarOrRarFile.getPath()));
         }
     }
 
@@ -899,7 +891,6 @@ public class ExecutionAdmin implements IExecutionAdmin {
             }
         } catch (Exception ex) {
             String msg = Messages.getString(Messages.ExecutionAdmin.instanceDeployUndeployProblemPingingTeiidJdbc, url);
-            IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, msg, ex);
             return OutcomeFactory.getInstance().createError(msg, ex);
         }
         

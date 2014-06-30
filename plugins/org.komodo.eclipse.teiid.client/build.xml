@@ -115,6 +115,7 @@
 			 args="-pl target-platform,
 			           plugins/org.komodo.spi,
 			           plugins/org.komodo.eclipse.spi
+			           plugins/org.komodo.utils
 			       install"/>
 	</target>
 
