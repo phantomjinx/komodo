@@ -54,6 +54,7 @@ public abstract class TeiidSQLConstants {
         String TICK = "'";
         String LOGICAL_OR = "||";
         String LOGICAL_AND = "&&";
+        String DOLLAR = "$";
     }
 
     public interface NonReserved {
@@ -117,7 +118,7 @@ public abstract class TeiidSQLConstants {
         String EXTRACT = "EXTRACT";
         String TO_CHARS = "TO_CHARS";
         String TO_BYTES = "TO_BYTES";
-
+        
         String KEY = "KEY";
         
         String SERIAL = "SERIAL";
@@ -157,6 +158,33 @@ public abstract class TeiidSQLConstants {
 
         // Limit
         String NON_STRICT = "NON_STRICT";
+
+        // Data Types
+        String STRING = "STRING";
+        String VARBINARY = "VARBINARY";
+        String VARCHAR = "VARCHAR";
+        String BOOLEAN = "BOOLEAN";
+        String BYTE = "BYTE";
+        String TINYINT = "TINYINT";
+        String SHORT = "SHORT";
+        String SMALLINT = "SMALLINT";
+        String CHAR = "CHAR";
+        String INTEGER = "INTEGER";
+        String LONG = "LONG";
+        String BIGINT = "BIGINT";
+        String BIGINTEGER = "BIGINTEGER";
+        String FLOAT = "FLOAT";
+        String REAL = "REAL";
+        String DOUBLE = "DOUBLE";
+        String BIGDECIMAL = "BIGDECIMAL";
+        String DECIMAL = "DECIMAL";
+        String DATE = "DATE";
+        String TIME = "TIME";
+        String TIMESTAMP = "TIMESTAMP";
+        String OBJECT = "OBJECT";
+        String BLOB = "BLOB";
+        String CLOB = "CLOB";
+        String XML = "XML";
     }
     
     public interface Reserved {
@@ -407,6 +435,7 @@ public abstract class TeiidSQLConstants {
         String VALUE = "VALUE";
         String VALUES = "VALUES";
         String VARCHAR = "VARCHAR";
+        String VARBINARY = "VARBINARY";
         String VARYING = "VARYING";
         String WHEN = "WHEN";    
         String WHENEVER = "WHENEVER";    
