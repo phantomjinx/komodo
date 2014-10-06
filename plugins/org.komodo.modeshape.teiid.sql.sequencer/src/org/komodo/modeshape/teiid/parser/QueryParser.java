@@ -26,9 +26,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.komodo.modeshape.teiid.Messages;
 import org.komodo.modeshape.teiid.TeiidClientException;
 import org.komodo.modeshape.teiid.parser.AbstractTeiidParser.ParsingError;
+import org.komodo.modeshape.teiid.parser.syntax.TeiidSyntaxParser;
 import org.komodo.modeshape.teiid.parser.v8.Teiid8Parser;
 import org.komodo.modeshape.teiid.sql.lang.Command;
 import org.komodo.modeshape.teiid.sql.lang.Criteria;
@@ -294,5 +296,22 @@ public class QueryParser implements IQueryParser, StringConstants {
         }
 
         return result;
+    }
+
+    /**
+     * @param sql
+     * @return list of tokens expected to follow the given sql 
+     */
+    public Set<String> getExpectedTokens(String sql) {
+        StringReader reader = new StringReader(sql);
+        TeiidSyntaxParser syntaxParser = new TeiidSyntaxParser(reader);
+
+        try {            
+            syntaxParser.command(new ParseInfo());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return syntaxParser.getExpected();
     }
 }
