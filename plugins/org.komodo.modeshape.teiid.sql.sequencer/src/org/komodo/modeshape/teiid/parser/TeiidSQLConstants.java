@@ -435,7 +435,6 @@ public abstract class TeiidSQLConstants {
         String VALUE = "VALUE";
         String VALUES = "VALUES";
         String VARCHAR = "VARCHAR";
-        String VARBINARY = "VARBINARY";
         String VARYING = "VARYING";
         String WHEN = "WHEN";    
         String WHENEVER = "WHENEVER";    

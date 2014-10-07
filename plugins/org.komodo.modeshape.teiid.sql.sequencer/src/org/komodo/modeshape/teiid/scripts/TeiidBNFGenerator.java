@@ -43,9 +43,12 @@ import org.komodo.modeshape.teiid.parser.TeiidSQLConstants;
 import org.komodo.modeshape.teiid.parser.bnf.AbstractBNF;
 import org.komodo.modeshape.teiid.parser.bnf.BNFConstants;
 import org.komodo.modeshape.teiid.parser.bnf.clause.BracketClause;
-import org.komodo.modeshape.teiid.parser.bnf.clause.Clause;
 import org.komodo.modeshape.teiid.parser.bnf.clause.ClauseStack;
 import org.komodo.modeshape.teiid.parser.bnf.clause.IClause;
+import org.komodo.modeshape.teiid.parser.bnf.clause.IGroupClause;
+import org.komodo.modeshape.teiid.parser.bnf.clause.OptionalClause;
+import org.komodo.modeshape.teiid.parser.bnf.clause.OrClause;
+import org.komodo.modeshape.teiid.parser.bnf.clause.TokenClause;
 import org.komodo.spi.constants.StringConstants;
 import org.komodo.spi.runtime.version.ITeiidVersion;
 import org.komodo.spi.runtime.version.TeiidVersion;
@@ -133,7 +136,7 @@ public class TeiidBNFGenerator implements StringConstants {
             // < COMMA >
             // stringVal()
 
-            Pattern tokenPattern = Pattern.compile("<([A-Z_]+)>");
+            Pattern tokenPattern = Pattern.compile("<([A-Z_0-9]+)>");
             Pattern functionPattern = Pattern.compile("([a-zA-Z]+)\\(.*\\)");
             Pattern ppPattern = Pattern.compile("pp[AS]+[a-z]+\\(bnf\\." + name + "\\((.*?)\\).*");
 
@@ -152,19 +155,23 @@ public class TeiidBNFGenerator implements StringConstants {
                 if (token.startsWith("LOOKAHEAD")) {
                     // Need to check if there are brackets with it
                     // If not then we need to ignore the next
-                    
-                    boolean hasBrackets = token.contains(OPEN_BRACKET);
-                    int brackets = 0;
-                    for (int i = 0; i < token.length(); ++i) {
-                        char c = token.charAt(i);
-                        if (c == '(')
-                            brackets++;
-                        else if (c == ')')
-                            brackets--;
-                    }
+                    int brackets = 0, iterations = 0;
+                    do {
+                        boolean hasBrackets = token.contains(OPEN_BRACKET);
+                        if (hasBrackets) {
+                            brackets = checkBrackets(token);
+                            if (brackets == 0)
+                                break;
+                        } else
+                            brackets = 1; // artificial setting to keep the loop going since expect at least 1 open-bracket
 
-                    if (hasBrackets)
-                    
+                        if (iterations > 10)
+                            throw new Exception(token + " has an uneven number of brackets. Tried to continue but something really has gone wrong!");
+
+                        token = token + tokenizer.nextToken();
+                        iterations++;
+                    } while(brackets > 0);
+
                 } else if (tokenMatcher.matches()) {
                     identifier = tokenMatcher.group(1);
                     ArgCheck.isNotNull(identifier);
@@ -175,7 +182,7 @@ public class TeiidBNFGenerator implements StringConstants {
                         continue;
 
                     String tokenValue = tokenMap.get(identifier);
-                    Clause clause = new Clause(identifier);
+                    TokenClause clause = new TokenClause(identifier);
                     clause.setValue(tokenValue);
                     clauseStack.push(clause);
 
@@ -186,10 +193,7 @@ public class TeiidBNFGenerator implements StringConstants {
                     ArgCheck.isNotNull(identifier);
                     identifier = identifier.trim();
 
-                    if ("LOOKAHEAD".equals(identifier))
-                        continue;
-
-                    Clause clause = new Clause(identifier);
+                    TokenClause clause = new TokenClause(identifier);
                     clause.setValue(identifier + "(0)");
                     clauseStack.push(clause);
 
@@ -197,19 +201,49 @@ public class TeiidBNFGenerator implements StringConstants {
 
                 } else if (ppMatcher.matches()) {
                     String ppFunction = ppMatcher.group(1);
-                    IClause clause = clauseStack.peek();
-                    if (clause instanceof Clause)
-                        ((Clause)clause).setPPFunction(ppFunction);
+                    TokenClause clause = clauseStack.expectedLastClause(TokenClause.class);
+                    if (clause != null)
+                        clause.setPPFunction(ppFunction);
 
                 } else if (token.equals(OPEN_BRACKET)) {
                     clauseStack.push(new BracketClause());
                 } else if (token.equals(CLOSE_BRACKET)) {
-                    IClause clause = clauseStack.peek();
-                    if (clause instanceof BracketClause) {
-                        BracketClause bClause = (BracketClause)clause;
+                    BracketClause clause = clauseStack.getLatestOpenGroupClause(BracketClause.class);
+                    if (clause != null) {
+                        BracketClause bClause = clause;
                         // The CLOSE_BRACKET may not refer to this clause
                         // but to an inner clause first
-                        bClause.closeClause();
+                        bClause.closeClause(BracketClause.class);
+                    }
+                } else if (token.equals(CLOSE_BRACKET + STAR)) {
+                    BracketClause clause = clauseStack.getLatestOpenGroupClause(BracketClause.class);
+                    if (clause != null) {
+                        BracketClause bClause = clause;
+                        bClause.setMulti(true);
+                        bClause.closeClause(BracketClause.class);
+                    }
+                } else if (token.equals(OPEN_SQUARE_BRACKET)) {
+                    clauseStack.push(new OptionalClause());
+                } else if (token.equals(CLOSE_SQUARE_BRACKET)) {
+                    OptionalClause clause = clauseStack.getLatestOpenGroupClause(OptionalClause.class);
+                    if (clause != null) {
+                        OptionalClause oClause = clause;
+                        // The CLOSE__SQUARE_BRACKET may not refer to this clause
+                        // but to an inner clause first
+                        oClause.closeClause(OptionalClause.class);
+                    }
+                } else if (token.equals(PIPE)) {
+                    OrClause orClause = new OrClause();
+                    IClause topClause = clauseStack.peek();
+                    if (topClause instanceof IGroupClause && ((IGroupClause) topClause).isOpen()) {
+                        // Or clause belongs inside the topClause
+                        IGroupClause gClause = (IGroupClause) topClause;
+                        gClause.addClause(orClause);
+                    } else {
+                        // topClause is closed so it is the left clause of the or
+                        topClause = clauseStack.pop();
+                        orClause.setLeftClause(topClause);
+                        clauseStack.push(orClause);
                     }
                 }
 
@@ -219,6 +253,18 @@ public class TeiidBNFGenerator implements StringConstants {
             while(clauseIter.hasNext()) {
                 System.out.println(clauseIter.next().toString());
             }
+        }
+
+        private int checkBrackets(String token) {
+            int brackets = 0;
+            for (int i = 0; i < token.length(); ++i) {
+                char c = token.charAt(i);
+                if (c == '(')
+                    brackets++;
+                else if (c == ')')
+                    brackets--;
+            }
+            return brackets;
         }
 
         public void addContent(String line) throws Exception {
@@ -240,7 +286,7 @@ public class TeiidBNFGenerator implements StringConstants {
                 line = line.replaceAll("[\\s]+", SPACE);
 
                 // Replace all < KEY > with <KEY>
-                line = line.replaceAll("< ([A-Z_]+) >", "<$1>");
+                line = line.replaceAll("< ([A-Z_0-9]+) >", "<$1>");
                 buf.append(line);
             }
 
@@ -663,8 +709,8 @@ public class TeiidBNFGenerator implements StringConstants {
 
             for (MethodModel method : methods) {
 //                if (! method.getName().equals("textColumn"))
-                if (! method.getName().equals("booleanPrimary"))
-                    continue;
+//                if (! method.getName().equals("operator"))
+//                    continue;
 
                 System.out.println(method.getName());
                 System.out.println("Requires Switch: " + method.requiresSwitch());

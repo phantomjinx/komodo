@@ -215,6 +215,11 @@ public interface StringConstants {
      */
     String DIVIDE = FORWARD_SLASH;
 
+    /**
+     * Pipe Sign
+     */
+    String PIPE = "|"; //$NON-NLS-1$
+
 	/**
    * komodo
    */

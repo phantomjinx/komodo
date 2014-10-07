@@ -2233,11 +2233,7 @@ void assignStatementOperand(ParseInfo info) :
 //	try
 //	{
 		(
-			LOOKAHEAD
-			(
-				< INSERT >
-				< INTO >
-			)
+			LOOKAHEAD	(< INSERT > 	< INTO >)
 	   		insert(info)
 			|
 			update(info)
@@ -2764,12 +2760,7 @@ void insert(ParseInfo info) :
 		}
 
 		[
-			LOOKAHEAD
-			(
-				< LPAREN >
-				id()
-			)
-
+			LOOKAHEAD	(< LPAREN > id())
 			columnList()
 			{
 				ppAppend(bnf.insert(BNF.columnList));
@@ -6737,13 +6728,7 @@ void function(ParseInfo info) :
 				}
 			)
 			|
-			LOOKAHEAD
-			(
-				< TRANSLATE >
-				|
-				< INSERT >
-				< LPAREN >
-			)
+			LOOKAHEAD	(< TRANSLATE >	| < INSERT > < LPAREN >)
 			(
 				(
 					< TRANSLATE >

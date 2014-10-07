@@ -21,76 +21,28 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import org.komodo.spi.constants.StringConstants;
 
 
 /**
  *
  */
-public class BracketClause implements IGroupClause, StringConstants {
+public class BracketClause extends AbstractGroupClause {
 
-    private boolean open = true;
+    private boolean multi = false;
 
-    private List<IClause> clauseChain = new ArrayList<IClause>();
-
-    public BracketClause() {
+    /**
+     * @return multi
+     */
+    public boolean isMulti() {
+        return multi;
     }
 
     /**
-     * @param clause
+     * @param multi the multi to set
      */
-    @Override
-    public void addClause(IClause clause) {
-        if (clauseChain.isEmpty()) {
-            clauseChain.add(clause);
-            return;
-        }
-
-        IClause chainedClause = clauseChain.get(clauseChain.size() - 1);
-        if (! (chainedClause instanceof IGroupClause)) {
-            clauseChain.add(clause);
-            return;
-        }
-        
-        IGroupClause gClause = ((IGroupClause) chainedClause);
-
-        if (gClause.isClosed()) {
-            clauseChain.add(clause);
-            return;
-        }
-        
-        gClause.addClause(clause);
-    }
-
-    @Override
-    public boolean isOpen() {
-        return open;
-    }
-
-    @Override
-    public boolean isClosed() {
-        return !open;
-    }
-
-    public void closeClause() {
-        for (int i = clauseChain.size() - 1; i >= 0; --i) {
-            IClause clause= clauseChain.get(i);
-            if (! (clause instanceof IGroupClause))
-                continue;
-
-            IGroupClause gClause = (IGroupClause) clause;
-            if (gClause.isOpen()) {
-                gClause.closeClause();
-                return;
-            }
-        }
-
-        // Get to here then all the group clauses in the clause chain
-        // were closed so the close call is for this
-        this.open = false;
+    public void setMulti(boolean multi) {
+        this.multi = multi;
     }
 
     @Override
@@ -98,12 +50,16 @@ public class BracketClause implements IGroupClause, StringConstants {
         StringBuffer buf = new StringBuffer();
         buf.append(OPEN_BRACKET + NEW_LINE);
 
-        Iterator<IClause> clauseIter = clauseChain.iterator();
+        Iterator<IClause> clauseIter = getClauseStack().iterator();
         while(clauseIter.hasNext()) {
             buf.append(clauseIter.next().toString() + NEW_LINE);
         }
 
-        buf.append(CLOSE_BRACKET + NEW_LINE);
+        if (isMulti())
+            buf.append(CLOSE_BRACKET + STAR);
+        else
+            buf.append(CLOSE_BRACKET);
+
         return buf.toString();
     }
 }

@@ -35,5 +35,13 @@ public interface IGroupClause extends IClause {
      */
     void addClause(IClause clause);
 
-    void closeClause();
+    /**
+     * close the group clause
+     */
+    void closeClause(Class<? extends IClause> clauseClass);
+
+    /**
+     * @return the inner clause stack
+     */
+    ClauseStack getClauseStack();
 }

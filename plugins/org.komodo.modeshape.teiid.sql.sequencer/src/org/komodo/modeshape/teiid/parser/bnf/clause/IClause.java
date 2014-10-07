@@ -26,4 +26,19 @@ package org.komodo.modeshape.teiid.parser.bnf.clause;
  */
 public interface IClause {
 
+    /**
+     * Get the last clause in the clause's sequence
+     *
+     * @param clauseClass
+     * @return last clause in the sequence or null
+     */
+    <T extends IClause> T getLastClause(Class<T> clauseClass);
+
+    /**
+     * @param groupClass
+     *
+     * @return latest group clause of type group class which is open
+     */
+    public <T extends IGroupClause> T findLatestOpenGroupClause(Class<T> groupClass);
+
 }
