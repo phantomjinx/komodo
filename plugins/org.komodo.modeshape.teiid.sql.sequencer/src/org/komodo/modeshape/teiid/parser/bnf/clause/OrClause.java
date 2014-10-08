@@ -21,16 +21,35 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.komodo.spi.constants.StringConstants;
 
 /**
  *
  */
-public class OrClause implements IClause, StringConstants {
+public class OrClause implements ICompoundClause, StringConstants {
 
-    IClause leftClause;
+    private IClause leftClause;
 
-    IClause rightClause;
+    private IClause rightClause;
+
+    private ClauseStack owningStack;
+
+    @Override
+    public ClauseStack getOwningStack() {
+        return owningStack;
+    }
+
+    @Override
+    public void setOwningStack(ClauseStack clauseStack) {
+        this.owningStack = clauseStack;
+    }
+
+    @Override
+    public IClause nextClause() {
+        return getOwningStack().nextClause(this);
+    }
 
     /**
      * @return the leftClause
@@ -47,6 +66,7 @@ public class OrClause implements IClause, StringConstants {
             throw new RuntimeException("Cannot add an orClause as its own left operand"); //$NON-NLS-1$
 
         this.leftClause = leftClause;
+        this.leftClause.setOwningStack(getOwningStack());
     }
 
     /**
@@ -65,6 +85,7 @@ public class OrClause implements IClause, StringConstants {
 
         if (this.rightClause == null) {
             this.rightClause = rightClause;
+            this.rightClause.setOwningStack(getOwningStack());
             return;
         }
 
@@ -75,6 +96,7 @@ public class OrClause implements IClause, StringConstants {
 
         if (this.rightClause instanceof OrClause) {
             ((OrClause) this.rightClause).setRightClause(rightClause);
+            this.rightClause.setOwningStack(getOwningStack());
             return;
         }
 
@@ -86,6 +108,7 @@ public class OrClause implements IClause, StringConstants {
             OrClause orClause = (OrClause) rightClause;
             orClause.setLeftClause(this.rightClause);
             this.rightClause = orClause;
+            this.rightClause.setOwningStack(getOwningStack());
         }
     }
 
@@ -106,6 +129,34 @@ public class OrClause implements IClause, StringConstants {
             return null;
 
         return rightClause.findLatestOpenGroupClause(groupClass);
+    }
+
+    @Override
+    public List<String> getAppendStatements() {
+        List<String> appendStatements = new ArrayList<String>();
+
+        appendStatements.addAll(leftClause.getAppendStatements());
+        appendStatements.addAll(rightClause.getAppendStatements());
+
+        return appendStatements;
+    }
+
+    @Override
+    public List<TokenClause> getFirstTokenClauses() {
+        List<TokenClause> tokenClauses = new ArrayList<TokenClause>();
+        tokenClauses.addAll(leftClause.getFirstTokenClauses());
+        tokenClauses.addAll(rightClause.getFirstTokenClauses());
+        return tokenClauses;
+    }
+
+    @Override
+    public boolean hasPPFunction() {
+        return leftClause.hasPPFunction() || rightClause.hasPPFunction();
+    }
+
+    @Override
+    public boolean hasMultiParameterPPFunction() {
+        return leftClause.hasMultiParameterPPFunction() || rightClause.hasMultiParameterPPFunction();
     }
 
     @Override

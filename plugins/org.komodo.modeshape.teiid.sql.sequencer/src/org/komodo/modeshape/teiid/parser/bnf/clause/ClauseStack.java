@@ -21,6 +21,7 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
+import java.util.Iterator;
 import java.util.Stack;
 
 /**
@@ -30,10 +31,22 @@ public class ClauseStack extends Stack<IClause> {
 
     private static final long serialVersionUID = 1L;
 
+    private final IClause parent;
+
+    public ClauseStack(IClause parent) {
+        this.parent = parent;
+    }
+    
+    public IClause getParent() {
+        return parent;
+    }
+
     @Override
     public IClause push(IClause clause) {
-        if(isEmpty())
+        if(isEmpty()) {
+            clause.setOwningStack(this);
             return super.push(clause);
+        }
 
         IClause topClause = peek();
         if (topClause == clause)
@@ -60,6 +73,7 @@ public class ClauseStack extends Stack<IClause> {
             // needs to be assigned.
             //
             OrClause orClause = (OrClause) topClause;
+            clause.setOwningStack(this);
             orClause.setRightClause(clause);
             return clause;
         }
@@ -74,11 +88,18 @@ public class ClauseStack extends Stack<IClause> {
             //
             OrClause orClause = (OrClause) clause;
             topClause = pop();
-            orClause.setLeftClause(topClause);
+
+            orClause.setOwningStack(this);
             super.push(orClause);
+
+            // Must set the owning stack prior to setting the left clause
+            // since the left clause takes it owning stack from its parent
+            // or clause
+            orClause.setLeftClause(topClause);
             return orClause;
         }
 
+        clause.setOwningStack(this);
         return super.push(clause);
     }
 
@@ -109,5 +130,87 @@ public class ClauseStack extends Stack<IClause> {
 
         IClause topClause = peek();
         return topClause.findLatestOpenGroupClause(groupClass);
+    }
+
+//    public List<TokenClause> getNextTokenClauses(TokenClause tokenClause) {
+//        if (isEmpty())
+//            return Collections.emptyList();
+//
+//        Iterator<IClause> iterator = iterator();
+//        while (iterator.hasNext()) {
+//            IClause stackClause = iterator.next();
+//
+//            if (stackClause == tokenClause) {
+//
+//                if (iterator.hasNext()) {
+//                    IClause nextClause = iterator.next();
+//                    return nextClause.getFirstTokenClauses();
+//                } else {
+//                    // This is the last clause in this stack but maybe this is
+//                    // a stack within a stack.
+//                    IClause parent = getParent();
+//                    if (parent == IClause.ROOT_CLAUSE)
+//                        return Collections.emptyList(); // already as high as we can go
+//
+//                    ClauseStack parentStack = parent.getOwningStack();
+//                    IClause nextClause = parentStack.get(0);
+//                    return nextClause.getFirstTokenClauses();
+//                }
+//
+//            } else if (stackClause instanceof ICompoundClause) {
+//                ICompoundClause ccStackClause = (ICompoundClause) stackClause;
+//                List<TokenClause> nxtTknClauses = ccStackClause.findNextTokenClauses(tokenClause);
+//                if (nxtTknClauses != null && !nxtTknClauses.isEmpty()) {
+//                    // Found the tokenClause in the compound and 
+//                    // returned the next clause token clauses
+//                    return nxtTknClauses;
+//                }
+//            }
+//            
+//            // Failed to find tokenClause in any part of stackClause
+//        }
+//
+//        return Collections.emptyList();
+//    }
+
+    private IClause nextFromIterator(IClause currentClause, Iterator<IClause> iterator) {
+        if (iterator.hasNext()) {
+            IClause nextClause = iterator.next();
+            return nextClause;
+        } else {
+            // This is the last clause in this stack but maybe this is
+            // a stack within a compound clause inside another stack.
+            IClause parent = getParent();
+            if (parent == IClause.ROOT_CLAUSE)
+                return null; // already as high as we can go so definitely the end of the sequence
+
+            ClauseStack parentStack = parent.getOwningStack();
+            IClause nextClause = parentStack.nextClause(parent); // Get the next clause following the parent
+            return nextClause;
+        }
+    }
+
+    /**
+     * @param tokenClause
+     * @return
+     */
+    public IClause nextClause(IClause searchClause) {
+        Iterator<IClause> iterator = iterator();
+        while(iterator.hasNext()) {
+            IClause iterClause = iterator.next();
+            if (iterClause == searchClause) {
+                return nextFromIterator(iterClause, iterator);
+
+            } else if (iterClause instanceof OrClause) {
+                // OrClauses are a little unusual as their left/right are not visible in any stack
+                OrClause iterOrClause = (OrClause) iterClause;
+                if (iterOrClause.getLeftClause() == searchClause)
+                    return nextFromIterator(iterOrClause, iterator);
+                else if (iterOrClause.getRightClause() == searchClause)
+                    return nextFromIterator(iterOrClause, iterator);
+            }
+        }
+
+        return null;
     }
 }

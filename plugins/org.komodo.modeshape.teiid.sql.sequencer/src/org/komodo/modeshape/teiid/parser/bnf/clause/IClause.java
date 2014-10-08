@@ -21,10 +21,67 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
+import java.util.List;
+
 /**
  *
  */
 public interface IClause {
+
+    String BNF_APPEND_PREFIX = "append(bnf, "; //$NON-NLS-1$
+
+    IClause ROOT_CLAUSE = new IClause() {
+
+        @Override
+        public IClause nextClause() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <T extends IClause> T getLastClause(Class<T> clauseClass) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <T extends IGroupClause> T findLatestOpenGroupClause(Class<T> groupClass) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<String> getAppendStatements() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean hasPPFunction() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean hasMultiParameterPPFunction() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<TokenClause> getFirstTokenClauses() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ClauseStack getOwningStack() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setOwningStack(ClauseStack clauseStack) {
+            throw new UnsupportedOperationException();
+        }
+    };
+
+    /**
+     * @return next clause in the sequence
+     */
+    IClause nextClause();
 
     /**
      * Get the last clause in the clause's sequence
@@ -40,5 +97,37 @@ public interface IClause {
      * @return latest group clause of type group class which is open
      */
     public <T extends IGroupClause> T findLatestOpenGroupClause(Class<T> groupClass);
+
+    /**
+     * @return list of all possible append statements
+     */
+    List<String> getAppendStatements();
+    /**
+     * @return true if the clause has a pp function or
+     *                contains an inner clause that does
+     */
+    boolean hasPPFunction();
+
+    /**
+     * @return true if the clause has a pp function
+     *                with multi-parameters or
+     *                contains an inner clause that does
+     */
+    boolean hasMultiParameterPPFunction();
+
+    /**
+     * @return the first token clause(s)
+     */
+    List<TokenClause> getFirstTokenClauses();
+
+    /**
+     * @return clauseStack
+     */
+    ClauseStack getOwningStack();
+
+    /**
+     * @param clauseStack
+     */
+    void setOwningStack(ClauseStack clauseStack);
 
 }

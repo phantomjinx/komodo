@@ -21,38 +21,17 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  *
  */
-public class OptionalClause extends AbstractGroupClause {
-
-    @Override
-    public List<String> getAppendStatements() {
-        List<String> appendStatements = new ArrayList<String>();
-
-        for (IClause clause : getClauseStack()) {
-            appendStatements.addAll(clause.getAppendStatements());
-        }
-
-        return appendStatements;
-    }
-
-    @Override
-    public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append(OPEN_SQUARE_BRACKET + NEW_LINE);
-
-        Iterator<IClause> clauseIter = getClauseStack().iterator();
-        while(clauseIter.hasNext()) {
-            buf.append(clauseIter.next().toString() + NEW_LINE);
-        }
-
-        buf.append(CLOSE_SQUARE_BRACKET);
-        return buf.toString();
-    }
+public interface ICompoundClause extends IClause {
+//
+//    /**
+//     * @param searchClause
+//     *
+//     * @return list of token clauses that follow the search clause
+//     */
+//    List<TokenClause> findNextTokenClauses(TokenClause searchClause);
 
 }

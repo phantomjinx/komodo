@@ -21,6 +21,8 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
+import java.util.Collections;
+import java.util.List;
 import org.komodo.spi.constants.StringConstants;
 
 /**
@@ -30,15 +32,35 @@ public class TokenClause implements IClause, StringConstants {
 
     private final String identifier;
 
+    private final boolean isFunction;
+
     private String value;
 
     private String ppFunction;
 
+    private ClauseStack owningStack;
+
     /**
      * @param identifier
      */
-    public TokenClause(String identifier) {
+    public TokenClause(String identifier, boolean isFunction) {
         this.identifier = identifier;
+        this.isFunction = isFunction;
+    }
+
+    @Override
+    public ClauseStack getOwningStack() {
+        return owningStack;
+    }
+
+    @Override
+    public void setOwningStack(ClauseStack clauseStack) {
+        this.owningStack = clauseStack;
+    }
+
+    @Override
+    public IClause nextClause() {
+        return getOwningStack().nextClause(this);
     }
 
     /**
@@ -79,7 +101,7 @@ public class TokenClause implements IClause, StringConstants {
     @Override
     public <T extends IClause> T getLastClause(Class<T> clauseClass) {
         if (TokenClause.class.equals(clauseClass))
-            return (T) this;
+            return (T)this;
 
         return null;
     }
@@ -90,12 +112,60 @@ public class TokenClause implements IClause, StringConstants {
     }
 
     @Override
+    public List<TokenClause> getFirstTokenClauses() {
+        return Collections.singletonList(this);
+    }
+
+    public String getAppendStatement() {
+        //
+        // append(bnf, NonReserved.INSTEAD);
+        // append(bnf, BNF.stringVal);
+        //
+        StringBuffer buf = new StringBuffer();
+        buf.append(BNF_APPEND_PREFIX);
+        if (!isFunction)
+            buf.append(SPEECH_MARK);
+
+        String value = this.value.replaceAll("\\\\\\\"", EMPTY_STRING); //$NON-NLS-1$
+        if (!isFunction)
+            value = value.toUpperCase();
+
+        buf.append(value);
+
+        if (!isFunction)
+            buf.append(SPEECH_MARK);
+
+        buf.append(CLOSE_BRACKET + SEMI_COLON);
+        return buf.toString();
+    }
+
+    @Override
+    public List<String> getAppendStatements() {
+        return Collections.singletonList(getAppendStatement());
+    }
+
+    @Override
+    public boolean hasPPFunction() {
+        return getPPFunction() != null;
+    }
+
+    @Override
+    public boolean hasMultiParameterPPFunction() {
+        if (!hasPPFunction())
+            return false;
+
+        return getPPFunction().contains(COMMA);
+    }
+
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append(getIdentifier() + SPACE);
         buf.append(OPEN_BRACE + SPACE + getValue() + SPACE + CLOSE_BRACE + SPACE);
         if (getPPFunction() != null)
             buf.append("ppSet|Append " + getPPFunction() + SPACE); //$NON-NLS-1$
+
+        buf.append(TAB + TAB + owningStack.hashCode());
         return buf.toString();
     }
 }

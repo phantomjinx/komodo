@@ -21,6 +21,7 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
+import java.util.List;
 import org.komodo.spi.constants.StringConstants;
 
 /**
@@ -30,13 +31,30 @@ public abstract class AbstractGroupClause implements IGroupClause, StringConstan
 
     private boolean open = true;
 
-    private ClauseStack clauseStack = new ClauseStack();
+    private ClauseStack clauseStack = new ClauseStack(this);
+
+    private ClauseStack owningStack;
 
     /**
      * 
      */
     public AbstractGroupClause() {
         super();
+    }
+
+    @Override
+    public ClauseStack getOwningStack() {
+        return owningStack;
+    }
+
+    @Override
+    public void setOwningStack(ClauseStack clauseStack) {
+        this.owningStack = clauseStack;
+    }
+
+    @Override
+    public IClause nextClause() {
+        return getOwningStack().nextClause(this);
     }
 
     @Override
@@ -110,4 +128,37 @@ public abstract class AbstractGroupClause implements IGroupClause, StringConstan
 
         return null;
     }
+
+    @Override
+    public boolean hasPPFunction() {
+        for (IClause clause : getClauseStack()) {
+            if (clause.hasPPFunction())
+                return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean hasMultiParameterPPFunction() {
+        for (IClause clause : getClauseStack()) {
+            if (clause.hasMultiParameterPPFunction())
+                return true;
+        }
+
+        return false;
+
+    }
+
+    @Override
+    public List<TokenClause> getFirstTokenClauses() {
+        IClause firstClause = clauseStack.get(0);
+        return firstClause.getFirstTokenClauses();
+    }
+
+//    @Override
+//    public List<TokenClause> findNextTokenClauses(TokenClause searchClause) {
+//        return Collections.emptyList();
+//    }
+
 }

@@ -24,7 +24,7 @@ package org.komodo.modeshape.teiid.parser.bnf.clause;
 /**
  *
  */
-public interface IGroupClause extends IClause {
+public interface IGroupClause extends ICompoundClause {
 
     boolean isOpen();
 

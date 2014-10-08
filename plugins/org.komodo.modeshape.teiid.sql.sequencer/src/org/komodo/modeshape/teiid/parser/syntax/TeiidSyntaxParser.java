@@ -436,6 +436,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     try {
       if (jj_2_1(2)) {
         createProcedure(info);
+                                ppAppend(bnf.command(BNF.createProcedure));
       } else {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case ALTER:
@@ -454,9 +455,11 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         case WITH:
         case LPAREN:
           userCommand(info);
+                                ppAppend(bnf.command(BNF.userCommand));
           break;
         case LBRACE:
           callableStatement(info);
+                                ppAppend(bnf.command(BNF.callableStatement));
           break;
         default:
           jj_la1[2] = jj_gen;
@@ -489,10 +492,12 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     try {
       if (jj_2_2(2)) {
         createProcedure(info);
+                                ppAppend(bnf.designerCommand(BNF.createProcedure));
       } else {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case FOR:
           forEachRowTriggerAction(info);
+                                ppAppend(bnf.designerCommand(BNF.forEachRowTriggerAction));
           break;
         case ALTER:
         case BEGIN:
@@ -510,6 +515,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         case WITH:
         case LPAREN:
           userCommand(info);
+                                ppAppend(bnf.designerCommand(BNF.userCommand));
           break;
         default:
           jj_la1[4] = jj_gen;
@@ -9521,68 +9527,6 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     finally { jj_save(42, xla); }
   }
 
-  private boolean jj_3R_359() {
-    if (jj_3R_401()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_297() {
-    if (jj_3R_335()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_464()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_559() {
-    if (jj_scan_token(LPAREN)) return true;
-    if (jj_3R_397()) return true;
-    if (jj_scan_token(RPAREN)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_548() {
-    if (jj_scan_token(DEFAULT_KEYWORD)) return true;
-    if (jj_3R_71()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_187() {
-    if (jj_scan_token(VIEW)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_358() {
-    if (jj_3R_65()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_243() {
-    if (jj_scan_token(INTERSECT)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_275()) jj_scanpos = xsp;
-    if (jj_3R_240()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_388() {
-    if (jj_scan_token(XML)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_357() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_399()) {
-    jj_scanpos = xsp;
-    if (jj_3R_400()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3R_146() {
     if (jj_scan_token(ALTER)) return true;
     Token xsp;
@@ -9841,11 +9785,6 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     return false;
   }
 
-  private boolean jj_3_2() {
-    if (jj_3R_44()) return true;
-    return false;
-  }
-
   private boolean jj_3R_460() {
     if (jj_3R_459()) return true;
     return false;
@@ -9865,6 +9804,11 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     xsp = jj_scanpos;
     if (jj_3R_431()) jj_scanpos = xsp;
     if (jj_scan_token(RPAREN)) return true;
+    return false;
+  }
+
+  private boolean jj_3_2() {
+    if (jj_3R_44()) return true;
     return false;
   }
 
@@ -9955,11 +9899,6 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     return false;
   }
 
-  private boolean jj_3_1() {
-    if (jj_3R_44()) return true;
-    return false;
-  }
-
   private boolean jj_3R_457() {
     if (jj_3R_459()) return true;
     return false;
@@ -10004,8 +9943,8 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     return false;
   }
 
-  private boolean jj_3R_98() {
-    if (jj_3R_148()) return true;
+  private boolean jj_3_1() {
+    if (jj_3R_44()) return true;
     return false;
   }
 
@@ -10034,11 +9973,6 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
 
   private boolean jj_3R_67() {
     if (jj_3R_114()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_97() {
-    if (jj_scan_token(ID)) return true;
     return false;
   }
 
@@ -10075,13 +10009,13 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     return false;
   }
 
-  private boolean jj_3R_53() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_97()) {
-    jj_scanpos = xsp;
-    if (jj_3R_98()) return true;
-    }
+  private boolean jj_3R_98() {
+    if (jj_3R_148()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_97() {
+    if (jj_scan_token(ID)) return true;
     return false;
   }
 
@@ -10120,6 +10054,16 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     if (jj_3R_456()) jj_scanpos = xsp;
     xsp = jj_scanpos;
     if (jj_3R_457()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3R_53() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_97()) {
+    jj_scanpos = xsp;
+    if (jj_3R_98()) return true;
+    }
     return false;
   }
 
@@ -10514,6 +10458,36 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     return false;
   }
 
+  private boolean jj_3R_365() {
+    if (jj_scan_token(VARCHAR)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_551()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3R_250() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_53()) return true;
+    if (jj_scan_token(EQ)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_283()) jj_scanpos = xsp;
+    if (jj_3R_71()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_542() {
+    if (jj_scan_token(QUOTE)) return true;
+    if (jj_3R_540()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_249() {
+    if (jj_scan_token(GT)) return true;
+    return false;
+  }
+
   private boolean jj_3R_148() {
     Token xsp;
     xsp = jj_scanpos;
@@ -10743,41 +10717,6 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     return false;
   }
 
-  private boolean jj_3R_365() {
-    if (jj_scan_token(VARCHAR)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_551()) jj_scanpos = xsp;
-    return false;
-  }
-
-  private boolean jj_3R_250() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_53()) return true;
-    if (jj_scan_token(EQ)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_283()) jj_scanpos = xsp;
-    if (jj_3R_71()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_542() {
-    if (jj_scan_token(QUOTE)) return true;
-    if (jj_3R_540()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_354() {
-    if (jj_scan_token(STRINGVAL)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_249() {
-    if (jj_scan_token(GT)) return true;
-    return false;
-  }
-
   private boolean jj_3R_155() {
     if (jj_3R_198()) return true;
     Token xsp;
@@ -10815,6 +10754,11 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_550()) jj_scanpos = xsp;
+    return false;
+  }
+
+  private boolean jj_3R_354() {
+    if (jj_scan_token(STRINGVAL)) return true;
     return false;
   }
 
@@ -14328,6 +14272,68 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
 
   private boolean jj_3R_399() {
     if (jj_scan_token(ID)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_359() {
+    if (jj_3R_401()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_297() {
+    if (jj_3R_335()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_464()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_559() {
+    if (jj_scan_token(LPAREN)) return true;
+    if (jj_3R_397()) return true;
+    if (jj_scan_token(RPAREN)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_548() {
+    if (jj_scan_token(DEFAULT_KEYWORD)) return true;
+    if (jj_3R_71()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_187() {
+    if (jj_scan_token(VIEW)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_358() {
+    if (jj_3R_65()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_243() {
+    if (jj_scan_token(INTERSECT)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_275()) jj_scanpos = xsp;
+    if (jj_3R_240()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_388() {
+    if (jj_scan_token(XML)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_357() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_399()) {
+    jj_scanpos = xsp;
+    if (jj_3R_400()) return true;
+    }
     return false;
   }
 

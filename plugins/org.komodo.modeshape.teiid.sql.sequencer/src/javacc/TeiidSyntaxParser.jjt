@@ -1372,10 +1372,19 @@ Command command(ParseInfo info) :
 		(
 			LOOKAHEAD(2)
 			createProcedure(info)
+			{
+				ppAppend(bnf.command(BNF.createProcedure));
+			}
 			|
 			userCommand(info)
+			{
+				ppAppend(bnf.command(BNF.userCommand));
+			}
 			|
 			callableStatement(info)
+			{
+				ppAppend(bnf.command(BNF.callableStatement));
+			}
 		)
 
 		[ < SEMICOLON > ]
@@ -1406,10 +1415,19 @@ Command designerCommand(ParseInfo info) :
 		(
 			LOOKAHEAD(2)
 			createProcedure(info)
+			{
+				ppAppend(bnf.designerCommand(BNF.createProcedure));
+			}
 			|
 			forEachRowTriggerAction(info)
+			{
+				ppAppend(bnf.designerCommand(BNF.forEachRowTriggerAction));
+			}
 			|
 			userCommand(info)
+			{
+				ppAppend(bnf.designerCommand(BNF.userCommand));
+			}
 		)
 
 		[ < SEMICOLON > ]

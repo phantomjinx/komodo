@@ -21,7 +21,9 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -43,6 +45,17 @@ public class BracketClause extends AbstractGroupClause {
      */
     public void setMulti(boolean multi) {
         this.multi = multi;
+    }
+
+    @Override
+    public List<String> getAppendStatements() {
+        List<String> appendStatements = new ArrayList<String>();
+
+        for (IClause clause : getClauseStack()) {
+            appendStatements.addAll(clause.getAppendStatements());
+        }
+
+        return appendStatements;
     }
 
     @Override
