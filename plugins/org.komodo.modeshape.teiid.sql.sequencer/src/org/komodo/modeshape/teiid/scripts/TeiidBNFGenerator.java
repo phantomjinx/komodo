@@ -41,7 +41,6 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.komodo.modeshape.teiid.parser.TeiidSQLConstants;
 import org.komodo.modeshape.teiid.parser.bnf.AbstractBNF;
 import org.komodo.modeshape.teiid.parser.bnf.BNFConstants;
 import org.komodo.modeshape.teiid.parser.bnf.clause.BracketClause;
@@ -72,7 +71,7 @@ public class TeiidBNFGenerator implements StringConstants {
     private static final String BNF_DIR = SRC_DIR + File.separator +
                                                                     convertPackageToDirPath(BNFConstants.class.getPackage());
 
-    private static final String BNF_FILENAME = "newBNF.java";
+    private static final String BNF_FILENAME = "BNF.java";
 
     private static final String TEIID_SQL_JJT = "TeiidSyntaxParser.jjt";
 
@@ -150,6 +149,7 @@ public class TeiidBNFGenerator implements StringConstants {
             Pattern tokenPattern = Pattern.compile("<([A-Z_0-9]+)>");
             Pattern functionPattern = Pattern.compile("([a-zA-Z]+)\\(.*\\)");
             Pattern ppPattern = Pattern.compile("pp[AS]+[a-z]+\\(bnf\\." + name + "\\((.*?)\\).*");
+            Pattern reqPattern = Pattern.compile("requiresVersionAtLeast\\((Version.TEIID_[0-9]_[0-9])\\);");
 
             StringTokenizer tokenizer = new StringTokenizer(getContent());
 
@@ -201,14 +201,13 @@ public class TeiidBNFGenerator implements StringConstants {
                     } while(brackets > 0);
                 }
 
-                System.out.println(token);
-
                 //
                 // Now the token has been put back together, test it against the expected matchers
                 //
                 Matcher tokenMatcher = tokenPattern.matcher(token);
                 Matcher functionMatcher = functionPattern.matcher(token);
                 Matcher ppMatcher = ppPattern.matcher(token);
+                Matcher reqMatcher = reqPattern.matcher(token);
 
                 if (tokenMatcher.matches()) {
                     identifier = tokenMatcher.group(1);
@@ -285,15 +284,15 @@ public class TeiidBNFGenerator implements StringConstants {
                         clauseStack.push(orClause);
                     }
 
-                }
-            }
+                } else if (reqMatcher.matches()) {
+                    String version = reqMatcher.group(1);
+                    ArgCheck.isNotNull(version);
 
-            // Now the stack is complete assign the next clauses to each token
-            // so that each token knows its relative position in the sequence
-            System.out.println("Main clause stack hash code: " + clauseStack.hashCode());
-            Iterator<IClause> iterator = clauseStack.iterator();
-            while(iterator.hasNext()) {
-                System.out.println(iterator.next().toString());
+                    // requiresVersionAtLeast(Version.TEIID_8_4);
+                    TokenClause clause = clauseStack.expectedLastClause(TokenClause.class);
+                    if (clause != null)
+                        clause.setMinimumVersion(version);
+                }
             }
         }
 
@@ -485,9 +484,6 @@ public class TeiidBNFGenerator implements StringConstants {
         String imp = "import";
 
         Class<?>[] klazzes = { List.class,
-                                             TeiidSQLConstants.NonReserved.class,
-                                             TeiidSQLConstants.Reserved.class,
-                                             TeiidSQLConstants.Tokens.class,
                                              ITeiidVersion.class,
                                              TeiidVersion.Version.class
                                             };
@@ -649,12 +645,24 @@ public class TeiidBNFGenerator implements StringConstants {
         //
         ClauseStack owningStack = clause.getOwningStack();
         IClause parent = owningStack.getParent();
-        if (parent instanceof BracketClause && ((BracketClause) parent).isMulti()) {
-            //
-            // Need to further check that the clause is the last in the stack
-            //
-            if (owningStack.isConsideredLastClause(clause))
-                tokenClauses.addAll(parent.getFirstTokenClauses());
+        IClause targetClause = clause;
+        while(parent != IClause.ROOT_CLAUSE && parent != null) {
+            if (parent instanceof BracketClause && ((BracketClause) parent).isMulti()) {
+                //
+                // Need to further check that the clause is the last in the stack
+                //
+                if (owningStack.isConsideredLastClause(targetClause))
+                    tokenClauses.addAll(parent.getFirstTokenClauses());
+            }
+
+            owningStack = parent.getOwningStack();
+            if (owningStack == null) {
+                targetClause = null;
+                parent = null;
+            } else {
+                targetClause = parent;
+                parent = owningStack.getParent();
+            }
         }
 
         if (nextClause == null)
@@ -681,7 +689,7 @@ public class TeiidBNFGenerator implements StringConstants {
 
         if (method.requiresSwitch()) {
             // switch case statement
-            caseStmt.setDeclaration(TAB + TAB + TAB + "case " + ppFunction + COLON + NEW_LINE);
+            caseStmt.addDeclaration(TAB + TAB + TAB + "case " + ppFunction + COLON + NEW_LINE);
             return caseStmt;
         }
 
@@ -699,7 +707,7 @@ public class TeiidBNFGenerator implements StringConstants {
 
         buffer.append(SPACE + OPEN_BRACE + NEW_LINE);
 
-        caseStmt.setDeclaration(buffer.toString());
+        caseStmt.addDeclaration(buffer.toString());
 
         return caseStmt;
     }
@@ -730,6 +738,9 @@ public class TeiidBNFGenerator implements StringConstants {
                         appendStmt.append(TAB + TAB + TAB + TAB);
                     else
                         appendStmt.append(TAB + TAB + TAB);
+
+                    if (nextTokenClause.getMinVersion() != null)
+                        appendStmt.append(nextTokenClause.getVersionStatement() + SPACE);
 
                     appendStmt.append(nextTokenClause.getAppendStatement() + NEW_LINE);
                     caseStmt.addStatement(appendStmt.toString());
@@ -783,10 +794,14 @@ public class TeiidBNFGenerator implements StringConstants {
             IClause clause = clauseStack.get(0);
             List<TokenClause> firstClauses = clause.getFirstTokenClauses();
             for (TokenClause tokenClause : firstClauses) {
+
                 if (method.requiresSwitch())
                     buf.append(TAB + TAB + TAB + TAB);
                 else
                     buf.append(TAB + TAB + TAB);
+
+                if (tokenClause.getMinVersion() != null)
+                    buf.append(tokenClause.getVersionStatement() + SPACE);
 
                 buf.append(tokenClause.getAppendStatement() + NEW_LINE);
             }
@@ -804,7 +819,10 @@ public class TeiidBNFGenerator implements StringConstants {
             appendRemainingTokenClauses(caseStatements, method, firstClauses, new HashSet<TokenClause>());
 
             for (CaseStatement caseStmt : caseStatements) {
-                buf.append(caseStmt.getDeclaration());
+                for (String declaration : caseStmt.getDeclarations()) {
+                    buf.append(declaration);
+                }
+
                 for (String statement : caseStmt.getStatements()) {
                     buf.append(statement);
                 }
@@ -917,21 +935,7 @@ public class TeiidBNFGenerator implements StringConstants {
 
             for (MethodModel method : methods) {
                 method.setTokenMap(tokenMap);
-
-//                if (! method.getName().equals("command"))
-//                if (! method.getName().equals("select"))
-                if (! method.getName().equals("option"))
-                    continue;
-
-                System.out.println(method.getName());
-                System.out.println("Requires Switch: " + method.requiresSwitch());
-                System.out.println("Requires IfElse: " + method.requiresIfElse());
-
-                System.out.println(TAB + method.getContent());
-
                 analyseMethod(method);
-
-                System.out.println("===");
             }
 
             append(NEW_LINE + CLOSE_BRACE);

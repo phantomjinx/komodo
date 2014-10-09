@@ -1701,10 +1701,10 @@ void userCommand(ParseInfo info) :
 			|
 			createTrigger(info)
 			|
+			compoundStatement(info)
 			{
 				requiresVersionAtLeast(Version.TEIID_8_4);
 			}
-			compoundStatement(info)
 		)
 //	}
 //	catch (ParseException ex)
@@ -6043,7 +6043,7 @@ void nestedExpression(ParseInfo info) :
 					LOOKAHEAD(2)
 					< COMMA >
 					{
-						ppSet(bnf.nestedExpression(BNF.COMMA));
+						ppSet(bnf.nestedExpression(BNF.LPAREN, BNF.expression, BNF.COMMA));
 					}
 
 					expression(info)
@@ -6208,7 +6208,7 @@ void caseExpression(ParseInfo info) :
 
 		expression(info)
 		{
-			ppAppend(bnf.caseExpression(BNF.expression));
+			ppAppend(bnf.caseExpression(BNF.CASE, BNF.expression));
 		}
 
 		(
@@ -6219,7 +6219,7 @@ void caseExpression(ParseInfo info) :
 
 			expression(info)
 			{
-				ppAppend(bnf.caseExpression(BNF.expression));
+				ppAppend(bnf.caseExpression(BNF.WHEN, BNF.expression));
 			}
 
 			< THEN >
@@ -6229,7 +6229,7 @@ void caseExpression(ParseInfo info) :
 
 			expression(info)
 			{
-				ppAppend(bnf.caseExpression(BNF.expression));
+				ppAppend(bnf.caseExpression(BNF.THEN, BNF.expression));
 			}
 		)+
 
@@ -6241,7 +6241,7 @@ void caseExpression(ParseInfo info) :
 
 			expression(info)
 			{
-				ppAppend(bnf.caseExpression(BNF.expression));
+				ppAppend(bnf.caseExpression(BNF.ELSE, BNF.expression));
 			}
 		]
 
@@ -6282,7 +6282,7 @@ void searchedCaseExpression(ParseInfo info) :
 
 			expression(info)
 			{
-				ppAppend(bnf.searchedCaseExpression(BNF.expression));
+				ppAppend(bnf.searchedCaseExpression(BNF.THEN, BNF.expression));
 			}
 		)+
 
@@ -6294,7 +6294,7 @@ void searchedCaseExpression(ParseInfo info) :
 
 			expression(info)
 			{
-				ppAppend(bnf.searchedCaseExpression(BNF.expression));
+				ppAppend(bnf.searchedCaseExpression(BNF.ELSE, BNF.expression));
 			}
 		]
 
@@ -6321,17 +6321,17 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.CONVERT, BNF.LPAREN));
 				}
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.CONVERT, BNF.expression));
 				}
 
 				< COMMA >
 				{
-					ppSet(bnf.function(BNF.COMMA));
+					ppSet(bnf.function(BNF.CONVERT, BNF.COMMA));
 				}
 
 				parseDataType()
@@ -6350,12 +6350,12 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.CAST, BNF.LPAREN));
 				}
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.CAST, BNF.expression));
 				}
 
 				< AS >
@@ -6383,24 +6383,24 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.SUBSTRING, BNF.LPAREN));
 				}
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.SUBSTRING, BNF.expression));
 				}
 
 				(
 					(
 						< FROM >
 						{
-							ppSet(bnf.function(BNF.FROM));
+							ppSet(bnf.function(BNF.SUBSTRING, BNF.FROM));
 						}
 
 						expression(info)
 						{
-							ppAppend(bnf.function(BNF.expression));
+							ppAppend(bnf.function(BNF.SUBSTRING, BNF.FROM, BNF.expression));
 						}
 
 						[
@@ -6411,7 +6411,7 @@ void function(ParseInfo info) :
 
 							expression(info)
 							{
-								ppAppend(bnf.function(BNF.expression));
+								ppAppend(bnf.function(BNF.FOR, BNF.expression));
 							}
 						]
 					)
@@ -6419,12 +6419,12 @@ void function(ParseInfo info) :
 					(
 						< COMMA >
 						{
-							ppSet(bnf.function(BNF.COMMA));
+							ppSet(bnf.function(BNF.SUBSTRING, BNF.COMMA));
 						}
 
 						expressionList(info)
 						{
-							ppAppend(bnf.function(BNF.expressionList));
+							ppAppend(bnf.function(BNF.SUBSTRING, BNF.COMMA, BNF.expressionList));
 						}
 					)
 				)
@@ -6444,7 +6444,7 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.EXTRACT, BNF.LPAREN));
 				}
 
 				(
@@ -6481,12 +6481,12 @@ void function(ParseInfo info) :
 
 				< FROM >
 				{
-					ppSet(bnf.function(BNF.FROM));
+					ppSet(bnf.function(BNF.EXTRACT, BNF.FROM));
 				}
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.EXTRACT, BNF.FROM, BNF.expression));
 				}
 
 				< RPAREN >
@@ -6503,7 +6503,7 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.TRIM, BNF.LPAREN));
 				}
 
 				[
@@ -6530,26 +6530,26 @@ void function(ParseInfo info) :
 							[
 								expression(info)
 								{
-									ppAppend(bnf.function(BNF.expression));
+									ppAppend(bnf.function(BNF.TRIM, BNF.LEADING, BNF.expression));
 								}
 							]
 						)
 						|
 						expression(info)
 						{
-							ppAppend(bnf.function(BNF.expression));
+							ppAppend(bnf.function(BNF.TRIM, BNF.expression));
 						}
 					)
 
 					< FROM >
 					{
-						ppSet(bnf.function(BNF.FROM));
+						ppSet(bnf.function(BNF.TRIM, BNF.FROM));
 					}
 				]
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.TRIM, BNF.LPAREN, BNF.expression));
 				}
 
 				< RPAREN >
@@ -6574,17 +6574,17 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.TO_BYTES, BNF.LPAREN));
 				}
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.TO_BYTES, BNF.expression));
 				}
 
 				< COMMA >
 				{
-					ppSet(bnf.function(BNF.COMMA));
+					ppSet(bnf.function(BNF.TO_BYTES, BNF.COMMA));
 				}
 
 				stringVal()
@@ -6595,7 +6595,7 @@ void function(ParseInfo info) :
 				[
 					< COMMA >
 					{
-						ppSet(bnf.function(BNF.COMMA));
+						ppSet(bnf.function(BNF.TO_BYTES, BNF.stringVal, BNF.COMMA));
 					}
 
 					{
@@ -6604,7 +6604,7 @@ void function(ParseInfo info) :
 
 					expression(info)
 					{
-						ppAppend(bnf.function(BNF.expression));
+						ppAppend(bnf.function(BNF.TO_BYTES, BNF.stringVal, BNF.expression));
 					}
 				]
 
@@ -6630,7 +6630,7 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.TIMESTAMPADD, BNF.LPAREN));
 				}
 
 				intervalType()
@@ -6640,22 +6640,22 @@ void function(ParseInfo info) :
 
 				< COMMA >
 				{
-					ppSet(bnf.function(BNF.COMMA));
+					ppSet(bnf.function(BNF.intervalType, BNF.COMMA));
 				}
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.intervalType, BNF.expression));
 				}
 
 				< COMMA >
 				{
-					ppSet(bnf.function(BNF.COMMA));
+					ppSet(bnf.function(BNF.intervalType, BNF.expression, BNF.COMMA));
 				}
 
 				expression(info)
 				{
-					ppAppend(bnf.function(BNF.expression));
+					ppAppend(bnf.function(BNF.intervalType, BNF.expression, BNF.COMMA, BNF.expression));
 				}
 
 				< RPAREN >
@@ -6730,13 +6730,13 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.queryString, BNF.LPAREN));
 				}
 
 				[
 					expressionList(info)
 					{
-						ppAppend(bnf.function(BNF.expressionList));
+						ppAppend(bnf.function(BNF.queryString, BNF.expressionList));
 					}
 				]
 
@@ -6762,13 +6762,13 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.TRANSLATE, BNF.LPAREN));
 				}
 
 				[
 					expressionList(info)
 					{
-						ppAppend(bnf.function(BNF.expressionList));
+						ppAppend(bnf.function(BNF.TRANSLATE, BNF.expressionList));
 					}
 				]
 
@@ -6796,7 +6796,7 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.XMLPI, BNF.LPAREN));
 				}
 
 				(
@@ -6810,19 +6810,19 @@ void function(ParseInfo info) :
 
 					id()
 					{
-						ppSet(bnf.function(BNF.id));
+						ppSet(bnf.function(BNF.XMLPI, BNF.id));
 					}
 				)
 
 				[
 					< COMMA >
 					{
-						ppSet(bnf.function(BNF.COMMA));
+						ppSet(bnf.function(BNF.XMLPI, BNF.COMMA));
 					}
 
 					expression(info)
 					{
-						ppAppend(bnf.function(BNF.expression));
+						ppAppend(bnf.function(BNF.XMLPI, BNF.expression));
 					}
 				]
 
@@ -6858,7 +6858,7 @@ void function(ParseInfo info) :
 
 				< LPAREN >
 				{
-					ppSet(bnf.function(BNF.LPAREN));
+					ppSet(bnf.function(BNF.id, BNF.LPAREN));
 				}
 
 				[
@@ -6876,7 +6876,7 @@ void function(ParseInfo info) :
 				[
 					expressionList(info)
 					{
-						ppAppend(bnf.function(BNF.expressionList));
+						ppAppend(bnf.function(BNF.id, BNF.expressionList));
 					}
 				]
 
@@ -7025,7 +7025,7 @@ void xmlElement(ParseInfo info) :
 			LOOKAHEAD(2)
 			< COMMA >
 			{
-				ppSet(bnf.xmlElement(BNF.COMMA));
+				ppSet(bnf.xmlElement(BNF.NAME, BNF.COMMA));
 			}
 
 			xmlNamespaces(info)
@@ -7038,7 +7038,7 @@ void xmlElement(ParseInfo info) :
 			LOOKAHEAD(2)
 			< COMMA >
 			{
-				ppSet(bnf.xmlElement(BNF.COMMA));
+				ppSet(bnf.xmlElement(BNF.xmlNamespaces, BNF.COMMA));
 			}
 
 			xmlAttributes(info)
@@ -7050,7 +7050,7 @@ void xmlElement(ParseInfo info) :
 		(
 			< COMMA >
 			{
-				ppSet(bnf.xmlElement(BNF.COMMA));
+				ppSet(bnf.xmlElement(BNF.xmlAttributes, BNF.COMMA));
 			}
 
 			expression(info)
@@ -7289,7 +7289,7 @@ void namespaceItem() :
 
 			stringVal()
 			{
-				ppAppend(bnf.namespaceItem(BNF.stringVal));
+				ppAppend(bnf.namespaceItem(BNF.DEFAULT_KEYWORD, BNF.stringVal));
 			}
 		)
 
@@ -7319,12 +7319,12 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.STRING, BNF.intVal));
 						}
 
 						< RPAREN >
 						{
-							ppSet(bnf.parseDataTypePrimary(BNF.RPAREN));
+							ppSet(null);
 						}
 					]
 				)
@@ -7345,7 +7345,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.VARCHAR, BNF.intVal));
 						}
 						
 						< RPAREN >
@@ -7396,7 +7396,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.CHAR, BNF.intVal));
 						}
 
 						< RPAREN >
@@ -7436,7 +7436,7 @@ void parseDataTypePrimary() :
 
 					intVal()
 					{
-						ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+						ppAppend(bnf.parseDataTypePrimary(BNF.BIGINTEGER, BNF.intVal));
 					}
 
 					< RPAREN >
@@ -7475,7 +7475,7 @@ void parseDataTypePrimary() :
 
 					intVal()
 					{
-						ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+						ppAppend(bnf.parseDataTypePrimary(BNF.BIGDECIMAL, BNF.intVal));
 					}
 
 					[
@@ -7486,7 +7486,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.BIGDECIMAL, BNF.COMMA, BNF.intVal));
 						}
 					]
 
@@ -7511,7 +7511,7 @@ void parseDataTypePrimary() :
 
 					intVal()
 					{
-						ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+						ppAppend(bnf.parseDataTypePrimary(BNF.DECIMAL, BNF.intVal));
 					}
 
 					[
@@ -7522,7 +7522,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.DECIMAL, BNF.COMMA, BNF.intVal));
 						}
 					]
 
@@ -7563,7 +7563,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.OBJECT, BNF.intVal));
 						}
 
 						< RPAREN >
@@ -7589,7 +7589,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.BLOB, BNF.intVal));
 						}
 
 						< RPAREN >
@@ -7615,7 +7615,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.CLOB, BNF.intVal));
 						}
 
 						< RPAREN >
@@ -7641,7 +7641,7 @@ void parseDataTypePrimary() :
 
 						intVal()
 						{
-							ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+							ppAppend(bnf.parseDataTypePrimary(BNF.VARBINARY, BNF.intVal));
 						}
 
 						< RPAREN >

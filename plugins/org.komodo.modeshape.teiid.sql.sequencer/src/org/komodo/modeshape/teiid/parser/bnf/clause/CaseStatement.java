@@ -29,22 +29,22 @@ import java.util.List;
  */
 public class CaseStatement {
 
-    private String declaration;
+    private List<String> declarations = new ArrayList<String>();
 
     private List<String> statements = new ArrayList<String>();
 
     /**
-     * @return the declaration
+     * @return the declarations
      */
-    public String getDeclaration() {
-        return this.declaration;
+    public List<String> getDeclarations() {
+        return this.declarations;
     }
 
     /**
      * @param declaration
      */
-    public void setDeclaration(String declaration) {
-        this.declaration = declaration;
+    public void addDeclaration(String declaration) {
+        this.declarations.add(declaration);
     }
 
     /**
@@ -61,11 +61,23 @@ public class CaseStatement {
         statements.add(statement);
     }
 
+    /**
+     * @return the case statement is for switch rather than if-else
+     */
+    public boolean isSwitch() {
+        for (String declaration : getDeclarations()) {
+            if (declaration.matches("[\\s]*case [a-zA-Z_0-9]+:.*")) //$NON-NLS-1$
+                return true;
+        }
+
+        return false;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.declaration == null) ? 0 : this.declaration.hashCode());
+        result = prime * result + ((this.declarations == null) ? 0 : this.declarations.hashCode());
         result = prime * result + ((this.statements == null) ? 0 : this.statements.hashCode());
         return result;
     }
@@ -79,10 +91,10 @@ public class CaseStatement {
         if (getClass() != obj.getClass())
             return false;
         CaseStatement other = (CaseStatement)obj;
-        if (this.declaration == null) {
-            if (other.declaration != null)
+        if (this.declarations == null) {
+            if (other.declarations != null)
                 return false;
-        } else if (!this.declaration.equals(other.declaration))
+        } else if (!this.declarations.equals(other.declarations))
             return false;
         if (this.statements == null) {
             if (other.statements != null)

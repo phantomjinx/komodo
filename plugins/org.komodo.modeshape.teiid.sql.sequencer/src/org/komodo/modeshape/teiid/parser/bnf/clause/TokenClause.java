@@ -23,12 +23,11 @@ package org.komodo.modeshape.teiid.parser.bnf.clause;
 
 import java.util.Collections;
 import java.util.List;
-import org.komodo.spi.constants.StringConstants;
 
 /**
  *
  */
-public class TokenClause implements IClause, StringConstants {
+public class TokenClause implements IClause {
 
     private final String identifier;
 
@@ -39,6 +38,8 @@ public class TokenClause implements IClause, StringConstants {
     private String ppFunction;
 
     private ClauseStack owningStack;
+
+    private String minVersion;
 
     /**
      * @param identifier
@@ -116,12 +117,20 @@ public class TokenClause implements IClause, StringConstants {
         return Collections.singletonList(this);
     }
 
+    public String getVersionStatement() {
+        if (minVersion == null)
+            return EMPTY_STRING;
+
+        return "if (versionAtLeast(" + minVersion +"))"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
     public String getAppendStatement() {
         //
         // append(bnf, NonReserved.INSTEAD);
         // append(bnf, BNF.stringVal);
         //
         StringBuffer buf = new StringBuffer();
+
         buf.append(BNF_APPEND_PREFIX);
         if (!isFunction)
             buf.append(SPEECH_MARK);
@@ -141,7 +150,14 @@ public class TokenClause implements IClause, StringConstants {
 
     @Override
     public List<String> getAppendStatements() {
-        return Collections.singletonList(getAppendStatement());
+        StringBuffer buffer = new StringBuffer();
+
+        if (minVersion != null)
+            buffer.append(getVersionStatement() + SPACE);
+
+        buffer.append(getAppendStatement());
+
+        return Collections.singletonList(buffer.toString());
     }
 
     @Override
@@ -167,5 +183,19 @@ public class TokenClause implements IClause, StringConstants {
 
         buf.append(TAB + TAB + owningStack.hashCode());
         return buf.toString();
+    }
+
+    /**
+     * @return the minVersion
+     */
+    public String getMinVersion() {
+        return this.minVersion;
+    }
+
+    /**
+     * @param version
+     */
+    public void setMinimumVersion(String version) {
+        this.minVersion = version;
     }
 }

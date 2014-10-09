@@ -74,8 +74,10 @@ public class ClauseStack extends Stack<IClause> {
             //
             OrClause orClause = (OrClause) topClause;
             clause.setOwningStack(this);
-            orClause.setRightClause(clause);
-            return clause;
+            if (orClause.setRightClause(clause))
+                return clause;
+
+            // not set as right clause so orClause fully populated so add as a sibling
         }
 
         if (clause instanceof OrClause) {
@@ -200,7 +202,9 @@ public class ClauseStack extends Stack<IClause> {
 
             } else if (iterClause instanceof OrClause) {
                 // OrClauses are a little unusual as their left/right are not visible in any stack
-                return searchOrClause((OrClause) iterClause, iterator, searchClause);
+                IClause clause = searchOrClause((OrClause) iterClause, iterator, searchClause);
+                if (clause != null)
+                    return clause;
             }
         }
 

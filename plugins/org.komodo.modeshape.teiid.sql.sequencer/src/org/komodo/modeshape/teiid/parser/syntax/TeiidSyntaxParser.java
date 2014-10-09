@@ -931,8 +931,8 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       createTrigger(info);
       break;
     case BEGIN:
-                                requiresVersionAtLeast(Version.TEIID_8_4);
       compoundStatement(info);
+                                requiresVersionAtLeast(Version.TEIID_8_4);
       break;
     default:
       jj_la1[13] = jj_gen;
@@ -7092,7 +7092,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
           break label_34;
         }
         jj_consume_token(COMMA);
-                                                ppSet(bnf.nestedExpression(BNF.COMMA));
+                                                ppSet(bnf.nestedExpression(BNF.LPAREN, BNF.expression, BNF.COMMA));
         expression(info);
                                                 ppAppend(bnf.nestedExpression(BNF.expression));
                                                 requiresVersionAtLeast(Version.TEIID_8_5);
@@ -7372,17 +7372,17 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     jj_consume_token(CASE);
                         ppSet(bnf.caseExpression(BNF.CASE));
     expression(info);
-                        ppAppend(bnf.caseExpression(BNF.expression));
+                        ppAppend(bnf.caseExpression(BNF.CASE, BNF.expression));
     label_35:
     while (true) {
       jj_consume_token(WHEN);
                                 ppSet(bnf.caseExpression(BNF.WHEN));
       expression(info);
-                                ppAppend(bnf.caseExpression(BNF.expression));
+                                ppAppend(bnf.caseExpression(BNF.WHEN, BNF.expression));
       jj_consume_token(THEN);
                                 ppSet(bnf.caseExpression(BNF.THEN));
       expression(info);
-                                ppAppend(bnf.caseExpression(BNF.expression));
+                                ppAppend(bnf.caseExpression(BNF.THEN, BNF.expression));
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case WHEN:
         ;
@@ -7397,7 +7397,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(ELSE);
                                 ppSet(bnf.caseExpression(BNF.ELSE));
       expression(info);
-                                ppAppend(bnf.caseExpression(BNF.expression));
+                                ppAppend(bnf.caseExpression(BNF.ELSE, BNF.expression));
       break;
     default:
       jj_la1[238] = jj_gen;
@@ -7419,7 +7419,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(THEN);
                                 ppSet(bnf.searchedCaseExpression(BNF.THEN));
       expression(info);
-                                ppAppend(bnf.searchedCaseExpression(BNF.expression));
+                                ppAppend(bnf.searchedCaseExpression(BNF.THEN, BNF.expression));
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case WHEN:
         ;
@@ -7434,7 +7434,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(ELSE);
                                 ppSet(bnf.searchedCaseExpression(BNF.ELSE));
       expression(info);
-                                ppAppend(bnf.searchedCaseExpression(BNF.expression));
+                                ppAppend(bnf.searchedCaseExpression(BNF.ELSE, BNF.expression));
       break;
     default:
       jj_la1[240] = jj_gen;
@@ -7450,11 +7450,11 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(CONVERT);
                                         ppSet(bnf.function(BNF.CONVERT));
       jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.CONVERT, BNF.LPAREN));
       expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.CONVERT, BNF.expression));
       jj_consume_token(COMMA);
-                                        ppSet(bnf.function(BNF.COMMA));
+                                        ppSet(bnf.function(BNF.CONVERT, BNF.COMMA));
       parseDataType();
                                         ppAppend(bnf.function(BNF.parseDataType));
       jj_consume_token(RPAREN);
@@ -7463,9 +7463,9 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(CAST);
                                         ppSet(bnf.function(BNF.CAST));
       jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.CAST, BNF.LPAREN));
       expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.CAST, BNF.expression));
       jj_consume_token(AS);
                                         ppSet(bnf.function(BNF.AS));
       parseDataType();
@@ -7479,21 +7479,21 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(SUBSTRING);
                                         ppSet(bnf.function(BNF.SUBSTRING));
         jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.SUBSTRING, BNF.LPAREN));
         expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.SUBSTRING, BNF.expression));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case FROM:
           jj_consume_token(FROM);
-                                                        ppSet(bnf.function(BNF.FROM));
+                                                        ppSet(bnf.function(BNF.SUBSTRING, BNF.FROM));
           expression(info);
-                                                        ppAppend(bnf.function(BNF.expression));
+                                                        ppAppend(bnf.function(BNF.SUBSTRING, BNF.FROM, BNF.expression));
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case FOR:
             jj_consume_token(FOR);
                                                                 ppSet(bnf.function(BNF.FOR));
             expression(info);
-                                                                ppAppend(bnf.function(BNF.expression));
+                                                                ppAppend(bnf.function(BNF.FOR, BNF.expression));
             break;
           default:
             jj_la1[241] = jj_gen;
@@ -7502,9 +7502,9 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
           break;
         case COMMA:
           jj_consume_token(COMMA);
-                                                        ppSet(bnf.function(BNF.COMMA));
+                                                        ppSet(bnf.function(BNF.SUBSTRING, BNF.COMMA));
           expressionList(info);
-                                                        ppAppend(bnf.function(BNF.expressionList));
+                                                        ppAppend(bnf.function(BNF.SUBSTRING, BNF.COMMA, BNF.expressionList));
           break;
         default:
           jj_la1[242] = jj_gen;
@@ -7517,7 +7517,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(EXTRACT);
                                         ppSet(bnf.function(BNF.EXTRACT));
         jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.EXTRACT, BNF.LPAREN));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case YEAR:
           jj_consume_token(YEAR);
@@ -7549,16 +7549,16 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
           throw new ParseException();
         }
         jj_consume_token(FROM);
-                                        ppSet(bnf.function(BNF.FROM));
+                                        ppSet(bnf.function(BNF.EXTRACT, BNF.FROM));
         expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.EXTRACT, BNF.FROM, BNF.expression));
         jj_consume_token(RPAREN);
                                         ppSet(null);
       } else if (jj_2_36(2)) {
         jj_consume_token(TRIM);
                                         ppSet(bnf.function(BNF.TRIM));
         jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.TRIM, BNF.LPAREN));
         if (jj_2_33(2)) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case BOTH:
@@ -7703,7 +7703,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
             case QMARK:
             case DOLLAR:
               expression(info);
-                                                                        ppAppend(bnf.function(BNF.expression));
+                                                                        ppAppend(bnf.function(BNF.TRIM, BNF.LEADING, BNF.expression));
               break;
             default:
               jj_la1[245] = jj_gen;
@@ -7830,7 +7830,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
           case QMARK:
           case DOLLAR:
             expression(info);
-                                                        ppAppend(bnf.function(BNF.expression));
+                                                        ppAppend(bnf.function(BNF.TRIM, BNF.expression));
             break;
           default:
             jj_la1[246] = jj_gen;
@@ -7838,12 +7838,12 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
             throw new ParseException();
           }
           jj_consume_token(FROM);
-                                                ppSet(bnf.function(BNF.FROM));
+                                                ppSet(bnf.function(BNF.TRIM, BNF.FROM));
         } else {
           ;
         }
         expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.TRIM, BNF.LPAREN, BNF.expression));
         jj_consume_token(RPAREN);
                                         ppSet(null);
       } else if (jj_2_37(2)) {
@@ -7862,20 +7862,20 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
           throw new ParseException();
         }
         jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.TO_BYTES, BNF.LPAREN));
         expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.TO_BYTES, BNF.expression));
         jj_consume_token(COMMA);
-                                        ppSet(bnf.function(BNF.COMMA));
+                                        ppSet(bnf.function(BNF.TO_BYTES, BNF.COMMA));
         stringVal();
                                         ppAppend(bnf.function(BNF.stringVal));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
           jj_consume_token(COMMA);
-                                                ppSet(bnf.function(BNF.COMMA));
+                                                ppSet(bnf.function(BNF.TO_BYTES, BNF.stringVal, BNF.COMMA));
                                                 requiresVersionAtLeast(Version.TEIID_8_6);
           expression(info);
-                                                ppAppend(bnf.function(BNF.expression));
+                                                ppAppend(bnf.function(BNF.TO_BYTES, BNF.stringVal, BNF.expression));
           break;
         default:
           jj_la1[248] = jj_gen;
@@ -7899,17 +7899,17 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
           throw new ParseException();
         }
         jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.TIMESTAMPADD, BNF.LPAREN));
         intervalType();
                                         ppAppend(bnf.function(BNF.intervalType));
         jj_consume_token(COMMA);
-                                        ppSet(bnf.function(BNF.COMMA));
+                                        ppSet(bnf.function(BNF.intervalType, BNF.COMMA));
         expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.intervalType, BNF.expression));
         jj_consume_token(COMMA);
-                                        ppSet(bnf.function(BNF.COMMA));
+                                        ppSet(bnf.function(BNF.intervalType, BNF.expression, BNF.COMMA));
         expression(info);
-                                        ppAppend(bnf.function(BNF.expression));
+                                        ppAppend(bnf.function(BNF.intervalType, BNF.expression, BNF.COMMA, BNF.expression));
         jj_consume_token(RPAREN);
                                         ppSet(null);
       } else if (jj_2_39(2)) {
@@ -7979,7 +7979,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
             throw new ParseException();
           }
           jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.queryString, BNF.LPAREN));
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case CHAR:
           case CAST:
@@ -8101,7 +8101,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
           case QMARK:
           case DOLLAR:
             expressionList(info);
-                                                ppAppend(bnf.function(BNF.expressionList));
+                                                ppAppend(bnf.function(BNF.queryString, BNF.expressionList));
             break;
           default:
             jj_la1[251] = jj_gen;
@@ -8128,7 +8128,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
               throw new ParseException();
             }
             jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.TRANSLATE, BNF.LPAREN));
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
             case CHAR:
             case CAST:
@@ -8250,7 +8250,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
             case QMARK:
             case DOLLAR:
               expressionList(info);
-                                                ppAppend(bnf.function(BNF.expressionList));
+                                                ppAppend(bnf.function(BNF.TRANSLATE, BNF.expressionList));
               break;
             default:
               jj_la1[253] = jj_gen;
@@ -8272,7 +8272,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
               jj_consume_token(XMLPI);
                                         ppSet(bnf.function(BNF.XMLPI));
               jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.XMLPI, BNF.LPAREN));
               switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
               case NAME:
                 jj_consume_token(NAME);
@@ -8283,13 +8283,13 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
                 ;
               }
               id();
-                                                ppSet(bnf.function(BNF.id));
+                                                ppSet(bnf.function(BNF.XMLPI, BNF.id));
               switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
               case COMMA:
                 jj_consume_token(COMMA);
-                                                ppSet(bnf.function(BNF.COMMA));
+                                                ppSet(bnf.function(BNF.XMLPI, BNF.COMMA));
                 expression(info);
-                                                ppAppend(bnf.function(BNF.expression));
+                                                ppAppend(bnf.function(BNF.XMLPI, BNF.expression));
                 break;
               default:
                 jj_la1[255] = jj_gen;
@@ -8395,7 +8395,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
                   id();
                                         ppSet(bnf.function(BNF.id));
                   jj_consume_token(LPAREN);
-                                        ppSet(bnf.function(BNF.LPAREN));
+                                        ppSet(bnf.function(BNF.id, BNF.LPAREN));
                   switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
                   case ALL:
                   case DISTINCT:
@@ -8539,7 +8539,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
                   case QMARK:
                   case DOLLAR:
                     expressionList(info);
-                                                ppAppend(bnf.function(BNF.expressionList));
+                                                ppAppend(bnf.function(BNF.id, BNF.expressionList));
                     break;
                   default:
                     jj_la1[258] = jj_gen;
@@ -8656,7 +8656,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
                                 ppAppend(bnf.xmlElement(BNF.id));
     if (jj_2_42(2)) {
       jj_consume_token(COMMA);
-                                ppSet(bnf.xmlElement(BNF.COMMA));
+                                ppSet(bnf.xmlElement(BNF.NAME, BNF.COMMA));
       xmlNamespaces(info);
                                 ppAppend(bnf.xmlElement(BNF.xmlNamespaces));
     } else {
@@ -8664,7 +8664,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
     }
     if (jj_2_43(2)) {
       jj_consume_token(COMMA);
-                                ppSet(bnf.xmlElement(BNF.COMMA));
+                                ppSet(bnf.xmlElement(BNF.xmlNamespaces, BNF.COMMA));
       xmlAttributes(info);
                                 ppAppend(bnf.xmlElement(BNF.xmlAttributes));
     } else {
@@ -8681,7 +8681,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         break label_38;
       }
       jj_consume_token(COMMA);
-                                ppSet(bnf.xmlElement(BNF.COMMA));
+                                ppSet(bnf.xmlElement(BNF.xmlAttributes, BNF.COMMA));
       expression(info);
                                 ppAppend(bnf.xmlElement(BNF.expression));
     }
@@ -8814,7 +8814,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(DEFAULT_KEYWORD);
                                 ppSet(bnf.namespaceItem(BNF.DEFAULT_KEYWORD));
       stringVal();
-                                ppAppend(bnf.namespaceItem(BNF.stringVal));
+                                ppAppend(bnf.namespaceItem(BNF.DEFAULT_KEYWORD, BNF.stringVal));
       break;
     default:
       jj_la1[274] = jj_gen;
@@ -8833,9 +8833,9 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.STRING, BNF.intVal));
         jj_consume_token(RPAREN);
-                                                        ppSet(bnf.parseDataTypePrimary(BNF.RPAREN));
+                                                        ppSet(null);
         break;
       default:
         jj_la1[275] = jj_gen;
@@ -8850,7 +8850,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.VARCHAR, BNF.intVal));
         jj_consume_token(RPAREN);
                                                         ppSet(null);
         break;
@@ -8887,7 +8887,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.CHAR, BNF.intVal));
         jj_consume_token(RPAREN);
                                                         ppSet(null);
         break;
@@ -8916,7 +8916,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                 ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                ppAppend(bnf.parseDataTypePrimary(BNF.BIGINTEGER, BNF.intVal));
         jj_consume_token(RPAREN);
                                                 ppSet(null);
         break;
@@ -8945,13 +8945,13 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                 ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                ppAppend(bnf.parseDataTypePrimary(BNF.BIGDECIMAL, BNF.intVal));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
           jj_consume_token(COMMA);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.COMMA));
           intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.BIGDECIMAL, BNF.COMMA, BNF.intVal));
           break;
         default:
           jj_la1[279] = jj_gen;
@@ -8973,13 +8973,13 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                 ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                ppAppend(bnf.parseDataTypePrimary(BNF.DECIMAL, BNF.intVal));
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case COMMA:
           jj_consume_token(COMMA);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.COMMA));
           intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.DECIMAL, BNF.COMMA, BNF.intVal));
           break;
         default:
           jj_la1[281] = jj_gen;
@@ -9013,7 +9013,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.OBJECT, BNF.intVal));
         jj_consume_token(RPAREN);
                                                         ppSet(null);
         break;
@@ -9030,7 +9030,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.BLOB, BNF.intVal));
         jj_consume_token(RPAREN);
                                                         ppSet(null);
         break;
@@ -9047,7 +9047,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.CLOB, BNF.intVal));
         jj_consume_token(RPAREN);
                                                         ppSet(null);
         break;
@@ -9064,7 +9064,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(LPAREN);
                                                         ppSet(bnf.parseDataTypePrimary(BNF.LPAREN));
         intVal();
-                                                        ppAppend(bnf.parseDataTypePrimary(BNF.intVal));
+                                                        ppAppend(bnf.parseDataTypePrimary(BNF.VARBINARY, BNF.intVal));
         jj_consume_token(RPAREN);
                                                         ppSet(null);
         break;

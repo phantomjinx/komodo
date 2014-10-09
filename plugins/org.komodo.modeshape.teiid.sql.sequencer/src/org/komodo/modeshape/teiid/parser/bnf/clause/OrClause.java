@@ -60,13 +60,16 @@ public class OrClause implements IClause, StringConstants {
 
     /**
      * @param leftClause the leftClause to set
+     *
+     * @return true if set successfully
      */
-    public void setLeftClause(IClause leftClause) {
+    public boolean setLeftClause(IClause leftClause) {
         if (leftClause == this)
             throw new RuntimeException("Cannot add an orClause as its own left operand"); //$NON-NLS-1$
 
         this.leftClause = leftClause;
         this.leftClause.setOwningStack(getOwningStack());
+        return true;
     }
 
     /**
@@ -78,26 +81,28 @@ public class OrClause implements IClause, StringConstants {
 
     /**
      * @param rightClause the rightClause to set
+     *
+     * @return true if set successfully
      */
-    public void setRightClause(IClause rightClause) {
+    public boolean setRightClause(IClause rightClause) {
         if (rightClause == this)
             throw new RuntimeException("Cannot add an orClause as its own right operand"); //$NON-NLS-1$
 
         if (this.rightClause == null) {
             this.rightClause = rightClause;
             this.rightClause.setOwningStack(getOwningStack());
-            return;
+            return true;
         }
 
         if (this.rightClause instanceof IGroupClause && ((IGroupClause) this.rightClause).isOpen()) {
             ((IGroupClause) this.rightClause).addClause(rightClause);
-            return;
+            return true;
         }
 
         if (this.rightClause instanceof OrClause) {
             ((OrClause) this.rightClause).setRightClause(rightClause);
             this.rightClause.setOwningStack(getOwningStack());
-            return;
+            return true;
         }
 
         if (rightClause instanceof OrClause) {
@@ -109,7 +114,10 @@ public class OrClause implements IClause, StringConstants {
             orClause.setLeftClause(this.rightClause);
             this.rightClause = orClause;
             this.rightClause.setOwningStack(getOwningStack());
+            return true;
         }
+
+        return false;
     }
 
     @Override
