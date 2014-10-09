@@ -132,48 +132,14 @@ public class ClauseStack extends Stack<IClause> {
         return topClause.findLatestOpenGroupClause(groupClass);
     }
 
-//    public List<TokenClause> getNextTokenClauses(TokenClause tokenClause) {
-//        if (isEmpty())
-//            return Collections.emptyList();
-//
-//        Iterator<IClause> iterator = iterator();
-//        while (iterator.hasNext()) {
-//            IClause stackClause = iterator.next();
-//
-//            if (stackClause == tokenClause) {
-//
-//                if (iterator.hasNext()) {
-//                    IClause nextClause = iterator.next();
-//                    return nextClause.getFirstTokenClauses();
-//                } else {
-//                    // This is the last clause in this stack but maybe this is
-//                    // a stack within a stack.
-//                    IClause parent = getParent();
-//                    if (parent == IClause.ROOT_CLAUSE)
-//                        return Collections.emptyList(); // already as high as we can go
-//
-//                    ClauseStack parentStack = parent.getOwningStack();
-//                    IClause nextClause = parentStack.get(0);
-//                    return nextClause.getFirstTokenClauses();
-//                }
-//
-//            } else if (stackClause instanceof ICompoundClause) {
-//                ICompoundClause ccStackClause = (ICompoundClause) stackClause;
-//                List<TokenClause> nxtTknClauses = ccStackClause.findNextTokenClauses(tokenClause);
-//                if (nxtTknClauses != null && !nxtTknClauses.isEmpty()) {
-//                    // Found the tokenClause in the compound and 
-//                    // returned the next clause token clauses
-//                    return nxtTknClauses;
-//                }
-//            }
-//            
-//            // Failed to find tokenClause in any part of stackClause
-//        }
-//
-//        return Collections.emptyList();
-//    }
-
-    private IClause nextFromIterator(IClause currentClause, Iterator<IClause> iterator) {
+    /**
+     * @param iterator
+     *
+     * @return next clause in iterator or if the iterator is finished then
+     *                 find the parent of this stack and check its stack for the
+     *                 next clause in the sequence
+     */
+    private IClause nextFromIterator(Iterator<IClause> iterator) {
         if (iterator.hasNext()) {
             IClause nextClause = iterator.next();
             return nextClause;
@@ -191,26 +157,76 @@ public class ClauseStack extends Stack<IClause> {
     }
 
     /**
-     * @param tokenClause
-     * @return
+     * The given orClause can recursively contain orClauses as its left/right clauses.
+     * All such clauses have the same owning stack but they need to be recursively
+     * searched for the given searchClause. Once the searchClause is located then
+     * the next clause in the iterator is returned.
+     * 
+     * @param orClause
+     * @param targetIterator
+     * @param searchClause
+     *
+     * @return the next clause in the iterator if searchClause can be found or null.
+     */
+    private IClause searchOrClause(OrClause orClause, Iterator<IClause> targetIterator, IClause searchClause) {
+        if (orClause == searchClause)
+            return nextFromIterator(targetIterator);
+
+        if (orClause.getLeftClause() == searchClause)
+            return nextFromIterator(targetIterator);
+        else if (orClause.getRightClause() == searchClause)
+            return nextFromIterator(targetIterator);
+
+        if (orClause.getLeftClause() instanceof OrClause)
+            return searchOrClause((OrClause) orClause.getLeftClause(), targetIterator, searchClause);
+
+        if (orClause.getRightClause() instanceof OrClause)
+            return searchOrClause((OrClause) orClause.getRightClause(), targetIterator, searchClause);
+
+        return null;
+    }
+
+    /**
+     * @param searchClause
+     *
+     * @return the next clause in the stack after the searchClause
      */
     public IClause nextClause(IClause searchClause) {
         Iterator<IClause> iterator = iterator();
         while(iterator.hasNext()) {
             IClause iterClause = iterator.next();
             if (iterClause == searchClause) {
-                return nextFromIterator(iterClause, iterator);
+                return nextFromIterator(iterator);
 
             } else if (iterClause instanceof OrClause) {
                 // OrClauses are a little unusual as their left/right are not visible in any stack
-                OrClause iterOrClause = (OrClause) iterClause;
-                if (iterOrClause.getLeftClause() == searchClause)
-                    return nextFromIterator(iterOrClause, iterator);
-                else if (iterOrClause.getRightClause() == searchClause)
-                    return nextFromIterator(iterOrClause, iterator);
+                return searchOrClause((OrClause) iterClause, iterator, searchClause);
             }
         }
 
         return null;
+    }
+
+    /**
+     * @param clause
+     *
+     * @return true if the clause is the last in the stack or all clauses after it are
+     *                 optional, false otherwise
+     */
+    public boolean isConsideredLastClause(IClause clause) {
+        if (clause == peek())
+            return true;
+
+        int index = indexOf(clause);
+        if (index == -1)
+            return false;
+    
+        for (int i = index + 1; i < size(); ++i) {
+            IClause next = get(i);
+            if (! (next instanceof OptionalClause))
+                return false;
+        }
+
+        return true;
     }
 }

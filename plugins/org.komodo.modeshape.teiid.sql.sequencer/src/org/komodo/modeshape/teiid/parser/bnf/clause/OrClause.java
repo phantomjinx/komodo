@@ -28,7 +28,7 @@ import org.komodo.spi.constants.StringConstants;
 /**
  *
  */
-public class OrClause implements ICompoundClause, StringConstants {
+public class OrClause implements IClause, StringConstants {
 
     private IClause leftClause;
 

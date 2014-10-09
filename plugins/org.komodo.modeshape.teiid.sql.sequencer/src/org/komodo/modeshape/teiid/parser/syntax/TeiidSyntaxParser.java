@@ -2511,11 +2511,11 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(COMMA);
                                 ppSet(bnf.setClauseList(BNF.COMMA));
       id();
-                                ppAppend(bnf.setClauseList(BNF.id));
+                                ppAppend(bnf.setClauseList(BNF.COMMA, BNF.id));
       jj_consume_token(EQ);
-                                ppSet(bnf.setClauseList(BNF.EQ));
+                                ppSet(bnf.setClauseList(BNF.COMMA, BNF.EQ));
       expression(info);
-                                ppAppend(bnf.setClauseList(BNF.expression));
+                                ppAppend(bnf.setClauseList(BNF.COMMA, BNF.expression));
     }
   }
 
@@ -3857,7 +3857,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(COUNT);
                                         ppSet(bnf.aggregateSymbol(BNF.COUNT));
       jj_consume_token(LPAREN);
-                                        ppSet(bnf.aggregateSymbol(BNF.LPAREN));
+                                        ppSet(bnf.aggregateSymbol(BNF.COUNT, BNF.LPAREN));
       jj_consume_token(STAR);
                                         ppSet(bnf.aggregateSymbol(BNF.STAR));
       jj_consume_token(RPAREN);
@@ -4727,9 +4727,9 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(SELECTOR);
                                                 ppSet(bnf.textColumn(BNF.SELECTOR));
         stringVal();
-                                                ppAppend(bnf.textColumn(BNF.stringVal));
+                                                ppAppend(bnf.textColumn(BNF.SELECTOR, BNF.stringVal));
         intVal();
-                                                ppAppend(bnf.textColumn(BNF.intVal));
+                                                ppSet(null);
         break;
       default:
         jj_la1[143] = jj_gen;
@@ -6113,13 +6113,13 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(LIMIT);
                                         ppSet(bnf.limit(BNF.LIMIT));
       intParam(info);
-                                        ppAppend(bnf.limit(BNF.intParam));
+                                        ppAppend(bnf.limit(BNF.LIMIT, BNF.intParam));
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case COMMA:
         jj_consume_token(COMMA);
                                                 ppSet(bnf.limit(BNF.COMMA));
         intParam(info);
-                                                ppAppend(bnf.limit(BNF.intParam));
+                                                ppSet(null);
         break;
       default:
         jj_la1[200] = jj_gen;
@@ -6130,7 +6130,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       jj_consume_token(OFFSET);
                                         ppSet(bnf.limit(BNF.OFFSET));
       intParam(info);
-                                        ppAppend(bnf.limit(BNF.intParam));
+                                        ppAppend(bnf.limit(BNF.OFFSET, BNF.intParam));
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ROW:
         jj_consume_token(ROW);
@@ -6148,7 +6148,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case FETCH:
         fetchLimit(info);
-                                                ppAppend(bnf.limit(BNF.fetchLimit));
+                                                ppSet(null);
         break;
       default:
         jj_la1[202] = jj_gen;
@@ -6157,7 +6157,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
       break;
     case FETCH:
       fetchLimit(info);
-                                        ppAppend(bnf.limit(BNF.fetchLimit));
+                                        ppSet(null);
       break;
     default:
       jj_la1[203] = jj_gen;
@@ -6337,7 +6337,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         jj_consume_token(MAKEDEP);
                                 ppSet(bnf.option(BNF.MAKEDEP));
         id();
-                                ppAppend(bnf.option(BNF.id));
+                                ppAppend(bnf.option(BNF.MAKEDEP, BNF.id));
         label_27:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -6349,16 +6349,16 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
             break label_27;
           }
           jj_consume_token(COMMA);
-                                        ppSet(bnf.option(BNF.COMMA));
+                                        ppSet(bnf.option(BNF.MAKEDEP, BNF.COMMA));
           id();
-                                        ppAppend(bnf.option(BNF.id));
+                                        ppAppend(bnf.option(BNF.MAKEDEP, BNF.COMMA, BNF.id));
         }
         break;
       case MAKENOTDEP:
         jj_consume_token(MAKENOTDEP);
                                 ppSet(bnf.option(BNF.MAKENOTDEP));
         id();
-                                ppAppend(bnf.option(BNF.id));
+                                ppAppend(bnf.option(BNF.MAKENOTDEP, BNF.id));
         label_28:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -6370,9 +6370,9 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
             break label_28;
           }
           jj_consume_token(COMMA);
-                                        ppSet(bnf.option(BNF.COMMA));
+                                        ppSet(bnf.option(BNF.MAKENOTDEP, BNF.COMMA));
           id();
-                                        ppAppend(bnf.option(BNF.id));
+                                        ppAppend(bnf.option(BNF.MAKENOTDEP, BNF.COMMA, BNF.id));
         }
         break;
       case NOCACHE:
@@ -6456,7 +6456,7 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
         case JSONOBJECT:
         case ID:
           id();
-                                        ppAppend(bnf.option(BNF.id));
+                                        ppAppend(bnf.option(BNF.NOCACHE, BNF.id));
           label_29:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -6468,9 +6468,9 @@ public class TeiidSyntaxParser extends AbstractTeiidParser/*@bgen(jjtree)*/imple
               break label_29;
             }
             jj_consume_token(COMMA);
-                                                ppSet(bnf.option(BNF.COMMA));
+                                                ppSet(bnf.option(BNF.NOCACHE, BNF.COMMA));
             id();
-                                                ppAppend(bnf.option(BNF.id));
+                                                ppAppend(bnf.option(BNF.NOCACHE, BNF.COMMA, BNF.id));
           }
           break;
         default:

@@ -21,7 +21,6 @@
  */
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
-import java.util.List;
 import org.komodo.spi.constants.StringConstants;
 
 /**
@@ -149,16 +148,5 @@ public abstract class AbstractGroupClause implements IGroupClause, StringConstan
         return false;
 
     }
-
-    @Override
-    public List<TokenClause> getFirstTokenClauses() {
-        IClause firstClause = clauseStack.get(0);
-        return firstClause.getFirstTokenClauses();
-    }
-
-//    @Override
-//    public List<TokenClause> findNextTokenClauses(TokenClause searchClause) {
-//        return Collections.emptyList();
-//    }
 
 }

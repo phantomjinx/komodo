@@ -59,6 +59,12 @@ public class BracketClause extends AbstractGroupClause {
     }
 
     @Override
+    public List<TokenClause> getFirstTokenClauses() {
+        IClause firstClause = getClauseStack().get(0);
+        return firstClause.getFirstTokenClauses();
+    }
+
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append(OPEN_BRACKET + NEW_LINE);

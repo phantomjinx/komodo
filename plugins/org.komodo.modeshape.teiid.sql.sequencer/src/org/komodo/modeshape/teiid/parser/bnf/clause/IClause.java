@@ -22,13 +22,16 @@
 package org.komodo.modeshape.teiid.parser.bnf.clause;
 
 import java.util.List;
+import org.komodo.spi.constants.StringConstants;
 
 /**
  *
  */
-public interface IClause {
+public interface IClause extends StringConstants {
 
     String BNF_APPEND_PREFIX = "append(bnf, "; //$NON-NLS-1$
+
+    String BREAK_STATEMENT = TAB + TAB + TAB + TAB + "break" + SEMI_COLON + NEW_LINE; //$NON-NLS-1$
 
     IClause ROOT_CLAUSE = new IClause() {
 

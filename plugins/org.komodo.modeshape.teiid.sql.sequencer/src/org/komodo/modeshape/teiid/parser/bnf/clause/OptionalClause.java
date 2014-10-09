@@ -42,6 +42,21 @@ public class OptionalClause extends AbstractGroupClause {
     }
 
     @Override
+    public List<TokenClause> getFirstTokenClauses() {
+        List<TokenClause> tokenClauses = new ArrayList<TokenClause>();
+
+        IClause firstClause = getClauseStack().get(0);
+        tokenClauses.addAll(firstClause.getFirstTokenClauses());
+
+        ClauseStack clauseStack = getOwningStack();
+        IClause nextClause = clauseStack.nextClause(this);
+        if (nextClause != null)
+            tokenClauses.addAll(nextClause.getFirstTokenClauses());
+
+        return tokenClauses;
+    }
+
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append(OPEN_SQUARE_BRACKET + NEW_LINE);

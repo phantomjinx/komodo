@@ -27,10 +27,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +45,7 @@ import org.komodo.modeshape.teiid.parser.TeiidSQLConstants;
 import org.komodo.modeshape.teiid.parser.bnf.AbstractBNF;
 import org.komodo.modeshape.teiid.parser.bnf.BNFConstants;
 import org.komodo.modeshape.teiid.parser.bnf.clause.BracketClause;
+import org.komodo.modeshape.teiid.parser.bnf.clause.CaseStatement;
 import org.komodo.modeshape.teiid.parser.bnf.clause.ClauseStack;
 import org.komodo.modeshape.teiid.parser.bnf.clause.IClause;
 import org.komodo.modeshape.teiid.parser.bnf.clause.IGroupClause;
@@ -156,10 +159,6 @@ public class TeiidBNFGenerator implements StringConstants {
             while(tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken();
 
-                Matcher tokenMatcher = tokenPattern.matcher(token);
-                Matcher functionMatcher = functionPattern.matcher(token);
-                Matcher ppMatcher = ppPattern.matcher(token);
-
                 if (token.startsWith("LOOKAHEAD")) {
                     // Need to check if there are brackets with it
                     // If not then we need to ignore the next
@@ -180,7 +179,38 @@ public class TeiidBNFGenerator implements StringConstants {
                         iterations++;
                     } while(brackets > 0);
 
-                } else if (tokenMatcher.matches()) {
+                    continue; // Want to totally ignore the LOOKAHEAD functions
+
+                } else if (token.startsWith("ppAppend") || token.startsWith("ppSet")) {
+                    // The tokeniser can split up pp function statements due to the commas/spaces
+                    int brackets = 0, iterations = 0;
+                    do {
+                        boolean hasBrackets = token.contains(OPEN_BRACKET);
+                        if (hasBrackets) {
+                            brackets = checkBrackets(token);
+                            if (brackets == 0)
+                                break;
+                        } else
+                            brackets = 1; // artificial setting to keep the loop going since expect at least 1 open-bracket
+
+                        if (iterations > 10)
+                            throw new Exception(token + " has an uneven number of brackets. Tried to continue but something really has gone wrong!");
+
+                        token = token + tokenizer.nextToken();
+                        iterations++;
+                    } while(brackets > 0);
+                }
+
+                System.out.println(token);
+
+                //
+                // Now the token has been put back together, test it against the expected matchers
+                //
+                Matcher tokenMatcher = tokenPattern.matcher(token);
+                Matcher functionMatcher = functionPattern.matcher(token);
+                Matcher ppMatcher = ppPattern.matcher(token);
+
+                if (tokenMatcher.matches()) {
                     identifier = tokenMatcher.group(1);
                     ArgCheck.isNotNull(identifier);
                     identifier = identifier.trim();
@@ -194,8 +224,6 @@ public class TeiidBNFGenerator implements StringConstants {
                     clause.setValue(tokenValue);
                     clauseStack.push(clause);
 
-//                  buf.append("append(bnf, \"" + tokenValue.toUpperCase() + "\");" + NEW_LINE);
-
                 } else if (functionMatcher.matches()) {
                     identifier = functionMatcher.group(1);
                     ArgCheck.isNotNull(identifier);
@@ -204,8 +232,6 @@ public class TeiidBNFGenerator implements StringConstants {
                     TokenClause clause = new TokenClause(identifier, true);
                     clause.setValue(identifier + "(0)");
                     clauseStack.push(clause);
-
-//                  buf.append("append(bnf, " + identifier + "(0));" + NEW_LINE);
 
                 } else if (ppMatcher.matches()) {
                     String ppFunction = ppMatcher.group(1);
@@ -225,6 +251,7 @@ public class TeiidBNFGenerator implements StringConstants {
                         // but to an inner clause first
                         bClause.closeClause(BracketClause.class);
                     }
+
                 } else if (token.equals(CLOSE_BRACKET + STAR)) {
                     BracketClause clause = clauseStack.getLatestOpenGroupClause(BracketClause.class);
                     if (clause != null) {
@@ -232,6 +259,7 @@ public class TeiidBNFGenerator implements StringConstants {
                         bClause.setMulti(true);
                         bClause.closeClause(BracketClause.class);
                     }
+
                 } else if (token.equals(OPEN_SQUARE_BRACKET)) {
                     OptionalClause clause = new OptionalClause();
                     clauseStack.push(clause);
@@ -244,6 +272,7 @@ public class TeiidBNFGenerator implements StringConstants {
                         // but to an inner clause first
                         oClause.closeClause(OptionalClause.class);
                     }
+
                 } else if (token.equals(PIPE)) {
                     OrClause orClause = new OrClause();
                     IClause topClause = clauseStack.peek();
@@ -252,10 +281,8 @@ public class TeiidBNFGenerator implements StringConstants {
                         IGroupClause gClause = (IGroupClause) topClause;
                         gClause.addClause(orClause);
                     } else {
-                        // topClause is closed so it is the left clause of the or
-                        topClause = clauseStack.pop();
+                        // topClause is closed so push the orClause onto the stack
                         clauseStack.push(orClause);
-                        orClause.setLeftClause(topClause);
                     }
 
                 }
@@ -317,6 +344,9 @@ public class TeiidBNFGenerator implements StringConstants {
         }
 
         public boolean requiresSwitch() throws Exception {
+            if (requiresIfElse())
+                return false;
+
             ClauseStack clauseStack = getClauseStack();
             for (IClause clause : clauseStack) {
                 if (clause.hasPPFunction())
@@ -608,16 +638,31 @@ public class TeiidBNFGenerator implements StringConstants {
         return tokenMap;
     }
 
-    private List<TokenClause> nextTokenClauses(IClause clause) {
+    private Collection<TokenClause> nextTokenClauses(IClause clause) {
+        LinkedHashSet<TokenClause> tokenClauses = new LinkedHashSet<TokenClause>();
         IClause nextClause = clause.nextClause();
 
-        if (nextClause == null)
-            return Collections.emptyList();
+        //
+        // Need to check that the owning stack's parent clause is a
+        // bracket 1-Many clause. In which case the first clause in
+        // the stack should also be the next clause.
+        //
+        ClauseStack owningStack = clause.getOwningStack();
+        IClause parent = owningStack.getParent();
+        if (parent instanceof BracketClause && ((BracketClause) parent).isMulti()) {
+            //
+            // Need to further check that the clause is the last in the stack
+            //
+            if (owningStack.isConsideredLastClause(clause))
+                tokenClauses.addAll(parent.getFirstTokenClauses());
+        }
 
-        List<TokenClause> tokenClauses = new ArrayList<TokenClause>();
+        if (nextClause == null)
+            return tokenClauses;
+
         tokenClauses.addAll(nextClause.getFirstTokenClauses());
 
-        if (nextClause instanceof OptionalClause) {
+        if ((nextClause instanceof OptionalClause) || (nextClause instanceof BracketClause && ((BracketClause) nextClause).isMulti())) {
             //
             // An optional clause implies it can be missed out entirely hence the next clause
             // after it should also be added to as a possibility.
@@ -628,42 +673,76 @@ public class TeiidBNFGenerator implements StringConstants {
         return tokenClauses;
     }
 
-    private void appendTokenClauses(StringBuffer buffer, List<TokenClause> currClauses, Set<TokenClause> alreadySeen) {
+    private CaseStatement createCaseStatement(String ppFunction, MethodModel method) throws Exception {
+        if (ppFunction == null)
+            return null;
+
+        CaseStatement caseStmt = new CaseStatement();
+
+        if (method.requiresSwitch()) {
+            // switch case statement
+            caseStmt.setDeclaration(TAB + TAB + TAB + "case " + ppFunction + COLON + NEW_LINE);
+            return caseStmt;
+        }
+
+        // if else statement
+        
+        // } else if (index == ALTER) {
+        // } else if (index == concat(VIEW, AS)) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(TAB + TAB + CLOSE_BRACE + " else if (index == ");
+
+        if (ppFunction.contains(COMMA))
+            buffer.append("concat" + OPEN_BRACKET + ppFunction + CLOSE_BRACKET + CLOSE_BRACKET);
+        else
+            buffer.append(ppFunction + CLOSE_BRACKET);
+
+        buffer.append(SPACE + OPEN_BRACE + NEW_LINE);
+
+        caseStmt.setDeclaration(buffer.toString());
+
+        return caseStmt;
+    }
+    
+    private void appendRemainingTokenClauses(Collection<CaseStatement> caseStmts, MethodModel method, List<TokenClause> currClauses, Set<TokenClause> tokenCache) throws Exception {
+        if (currClauses == null || currClauses.isEmpty())
+            return;
+
         List<TokenClause> nextClauses = new ArrayList<TokenClause>();
 
         for (TokenClause currClause : currClauses) {
-            if (alreadySeen.contains(currClause))
+            if (tokenCache.contains(currClause))
                 continue;
 
-            System.out.println(currClause.getIdentifier());
-            alreadySeen.add(currClause);
+            tokenCache.add(currClause);
 
             // case currClause.ppFunction
             String ppFunction = currClause.getPPFunction();
+            CaseStatement caseStmt = createCaseStatement(ppFunction, method);
 
-            if (ppFunction != null) {
-                buffer.append(TAB + TAB + TAB + "case " + ppFunction + COLON + NEW_LINE);
-            }
-
-            List<TokenClause> nextTokenClauses = nextTokenClauses(currClause);
+            Collection<TokenClause> nextTokenClauses = nextTokenClauses(currClause);
             for (TokenClause nextTokenClause : nextTokenClauses) {
 
-                if (ppFunction != null) {
+                if (caseStmt != null) {
+                    StringBuffer appendStmt = new StringBuffer();
                     // append(bnf, nextClause.value)
-                    buffer.append(TAB + TAB + TAB + TAB + nextTokenClause.getAppendStatement() + NEW_LINE);
+                    if (method.requiresSwitch())
+                        appendStmt.append(TAB + TAB + TAB + TAB);
+                    else
+                        appendStmt.append(TAB + TAB + TAB);
+
+                    appendStmt.append(nextTokenClause.getAppendStatement() + NEW_LINE);
+                    caseStmt.addStatement(appendStmt.toString());
                 }
 
                 nextClauses.add(nextTokenClause);
             }
 
-            if (ppFunction != null) {
-                // break;
-                buffer.append(TAB + TAB + TAB + TAB + "break" + SEMI_COLON + NEW_LINE);
-            }
+            if (caseStmt != null)
+                caseStmts.add(caseStmt);
         }
 
-        if (! nextClauses.isEmpty())
-            appendTokenClauses(buffer, nextClauses, alreadySeen);
+        appendRemainingTokenClauses(caseStmts, method, nextClauses, tokenCache);
     }
 
     private void analyseMethod(MethodModel method) throws Exception {
@@ -679,31 +758,63 @@ public class TeiidBNFGenerator implements StringConstants {
         buf.append(TAB + TAB + "List<String> bnf = newList();" + NEW_LINE + NEW_LINE);
 
         ClauseStack clauseStack = method.getClauseStack();
-
         if (!method.requiresSwitch() && !method.requiresIfElse()) {
             for (IClause clause : clauseStack) {
                 for (String appendStatement : clause.getAppendStatements()) {
                     buf.append(TAB + TAB + appendStatement + NEW_LINE);
                 }
             }
-        } else if (method.requiresSwitch()) {
+        } else {
             //
             // int index = concat(indices);
-            // switch (index) {
-            //    case 0:
+            //
             buf.append(TAB + TAB + "int index = concat(indices);" + NEW_LINE);
-            buf.append(TAB + TAB + "switch (index) {" + NEW_LINE);
 
-            buf.append(TAB + TAB + TAB + "case 0:" + NEW_LINE);
+            if (method.requiresIfElse()) {
+                // if (index == 0) {
+                buf.append(TAB + TAB + "if (index == 0) {" + NEW_LINE);
+            } else {
+                // switch (index) {
+                //    case 0:            
+                buf.append(TAB + TAB + "switch (index) {" + NEW_LINE);
+                buf.append(TAB + TAB + TAB + "case 0:" + NEW_LINE);
+            }
+
             IClause clause = clauseStack.get(0);
             List<TokenClause> firstClauses = clause.getFirstTokenClauses();
             for (TokenClause tokenClause : firstClauses) {
+                if (method.requiresSwitch())
+                    buf.append(TAB + TAB + TAB + TAB);
+                else
+                    buf.append(TAB + TAB + TAB);
+
                 buf.append(tokenClause.getAppendStatement() + NEW_LINE);
             }
-            buf.append(TAB + TAB + TAB + TAB + "break" + SEMI_COLON + NEW_LINE);
 
-            appendTokenClauses(buf, firstClauses, new HashSet<TokenClause>());
+            if (method.requiresSwitch()) {
+                // switch requires a break statement
+                buf.append(IClause.BREAK_STATEMENT);
+            }
 
+            //
+            // Using a hash set of case statement, we can deduplicate. This can happen if there
+            // are multi-clauses in the method as well as a singular bracket clause
+            //
+            LinkedHashSet<CaseStatement> caseStatements = new LinkedHashSet<CaseStatement>();
+            appendRemainingTokenClauses(caseStatements, method, firstClauses, new HashSet<TokenClause>());
+
+            for (CaseStatement caseStmt : caseStatements) {
+                buf.append(caseStmt.getDeclaration());
+                for (String statement : caseStmt.getStatements()) {
+                    buf.append(statement);
+                }
+
+                if (method.requiresSwitch()) {
+                    // break;
+                    buf.append(IClause.BREAK_STATEMENT);
+                }
+            }
+            
             buf.append(TAB + TAB + CLOSE_BRACE + NEW_LINE + NEW_LINE);
         }
 
@@ -809,8 +920,8 @@ public class TeiidBNFGenerator implements StringConstants {
 
 //                if (! method.getName().equals("command"))
 //                if (! method.getName().equals("select"))
-//                if (! method.getName().equals("nonReserved"))
-//                    continue;
+                if (! method.getName().equals("option"))
+                    continue;
 
                 System.out.println(method.getName());
                 System.out.println("Requires Switch: " + method.requiresSwitch());
