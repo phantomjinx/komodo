@@ -29,11 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.komodo.spi.annotation.Removed;
 import org.komodo.spi.annotation.Since;
-import org.komodo.spi.runtime.version.TeiidVersion;
 import org.komodo.spi.runtime.version.DefaultTeiidVersion.Version;
+import org.komodo.spi.runtime.version.TeiidVersion;
 import org.teiid.core.types.DefaultDataTypeManager;
 import org.teiid.core.util.StringUtil;
 import org.teiid.language.SQLConstants;
@@ -55,14 +54,14 @@ import org.teiid.query.metadata.DDLConstants;
 import org.teiid.query.metadata.SystemMetadata;
 import org.teiid.query.parser.TeiidNodeFactory.ASTNodes;
 import org.teiid.query.sql.lang.AlterTriggerImpl;
-import org.teiid.query.sql.lang.CommandImpl;
 import org.teiid.query.sql.lang.BaseLanguageObject;
+import org.teiid.query.sql.lang.CommandImpl;
 import org.teiid.query.sql.lang.SPParameterImpl;
 import org.teiid.query.sql.lang.SetQueryImpl;
 import org.teiid.query.sql.lang.SourceHintImpl;
 import org.teiid.query.sql.lang.StoredProcedureImpl;
-import org.teiid.query.sql.symbol.ElementSymbolImpl;
 import org.teiid.query.sql.symbol.BaseExpression;
+import org.teiid.query.sql.symbol.ElementSymbolImpl;
 import org.teiid.query.sql.symbol.GroupSymbolImpl;
 import org.teiid.runtime.client.Messages;
 import org.teiid.runtime.client.TeiidClientException;
@@ -90,6 +89,7 @@ public abstract class AbstractTeiidClientParser implements TeiidClientParser {
     /**
      * @param teiidVersion
      */
+    @Override
     public void setVersion(TeiidVersion teiidVersion) {
         this.version = teiidVersion;
     }

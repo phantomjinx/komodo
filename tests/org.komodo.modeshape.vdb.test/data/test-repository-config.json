@@ -29,7 +29,7 @@
 				]
 			},
 			"DDL Sequencer" : {
-			   	"classname" : "DdlSequencer",
+			   	"classname" : "org.komodo.modeshape.lib.sequencer.KDdlSequencer",
 			   	"pathExpressions" :
 			   	[
 					":(//*)[@vdb:modelDefinition] => /$1",

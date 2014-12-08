@@ -44,6 +44,11 @@ public interface StringConstants {
     String STAR = "*"; //$NON-NLS-1$
 
     /**
+     * A dollar.
+     */
+    String DOLLAR = "$"; //$NON-NLS-1$
+
+    /**
      * An underscore.
      */
     String UNDERSCORE = "_"; //$NON-NLS-1$
@@ -173,6 +178,11 @@ public interface StringConstants {
      * Hash Symbol
      */
     String HASH = "#"; //$NON-NLS-1$
+
+    /**
+     * Ampersand Symbol
+     */
+    String AMPERSAND = "@"; //$NON-NLS-1$
 
     /**
      * Open Angle Bracket

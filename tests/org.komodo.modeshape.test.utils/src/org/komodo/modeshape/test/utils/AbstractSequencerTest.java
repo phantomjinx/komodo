@@ -60,6 +60,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.komodo.spi.constants.StringConstants;
+import org.komodo.spi.runtime.version.TeiidVersion;
+import org.komodo.spi.runtime.version.TeiidVersionProvider;
 import org.komodo.utils.KLog;
 import org.modeshape.jcr.JcrLexicon;
 import org.modeshape.jcr.JcrSession;
@@ -143,6 +145,10 @@ public abstract class AbstractSequencerTest extends MultiUseAbstractTest impleme
 
     public ObservationManager getObservationManager() {
         return observationManager;
+    }
+
+    protected TeiidVersion getTeiidVersion() {
+        return TeiidVersionProvider.getInstance().getTeiidVersion();
     }
 
     @Override
@@ -379,6 +385,10 @@ public abstract class AbstractSequencerTest extends MultiUseAbstractTest impleme
 
     protected void verifyBaseProperties( Node node, String primaryType, String mixinType) throws RepositoryException {
         verifyPrimaryType(node, primaryType);
+        if (mixinType == null)
+            return;
+
+        // Only if mixinType is not null do we check it
         verifyMixinType(node, mixinType);
     }
 
@@ -432,6 +442,10 @@ public abstract class AbstractSequencerTest extends MultiUseAbstractTest impleme
 
     protected Node verify(Node parentNode, String relativePath, String mixinType) throws Exception {
         return verify(parentNode, relativePath, -1, mixinType);
+    }
+
+    protected Node verify(Node parentNode, String relativePath) throws Exception {
+        return verify(parentNode, relativePath, -1, null);
     }
 
     protected void expectSequencingFailure( Node sequencedNode ) throws Exception {
