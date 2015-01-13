@@ -23,6 +23,7 @@ import org.komodo.shell.api.Arguments;
 import org.komodo.shell.api.InvalidCommandArgumentException;
 import org.komodo.shell.api.ShellCommand;
 import org.komodo.shell.commands.CommandNotFoundCommand;
+import org.komodo.utils.KLog;
 
 /**
  * Implements tab completion for the interactive
@@ -51,7 +52,12 @@ public class TabCompleter implements Completion {
     @Override
     public void complete(CompleteOperation completeOperation) {
     	String buffer = completeOperation.getBuffer();
-    	List<String> allCommandsForContext = factory.getCommandsForCurrentContext();
+    	List<String> allCommandsForContext = new ArrayList<String>();
+        try {
+            allCommandsForContext.addAll(factory.getCommandsForCurrentContext());
+        } catch (Exception ex) {
+            KLog.getLogger().error(ex.getMessage(), ex);
+        }
 
     	// Case 1 - nothing has been typed yet - show all commands for this context
     	if (buffer.trim().length() == 0) {
@@ -84,8 +90,8 @@ public class TabCompleter implements Completion {
     		ShellCommand command = null;
     		try {
     			command = factory.getCommand(commandName);
-    		} catch (Exception e) {
-    		    // ignore
+    		} catch (Exception ex) {
+    		    KLog.getLogger().error(ex.getMessage(), ex);
     		}
 
     		// In case it is a command then we print the tabCompletion
@@ -94,7 +100,13 @@ public class TabCompleter implements Completion {
     			command.setArguments(arguments);
 
     			List<CharSequence> list = new ArrayList<CharSequence>();
-    			int tabCompletionResult = command.tabCompletion(lastArgument, list);
+    			int tabCompletionResult = -1;
+                try {
+                    tabCompletionResult = command.tabCompletion(lastArgument, list);
+                } catch (Exception ex) {
+                    KLog.getLogger().error(ex.getMessage(), ex);
+                }
+
     			if (!list.isEmpty()) {
     				// In case the tab completion return just one result it
     				// is printed the previous buffer plus the argument

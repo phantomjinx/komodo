@@ -33,7 +33,9 @@ import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.komodo.core.KEngine;
 import org.komodo.shell.KomodoShell;
+import org.komodo.utils.KLog;
 import org.osgi.framework.Bundle;
 
 /**
@@ -54,7 +56,7 @@ public class KomodoConsole extends IOConsole {
         public KomodoShellThread(InputStream inStream, PrintStream outStream) {
             this.setDaemon(true);
             this.outStream = outStream;
-            shell = new KomodoShell(inStream, outStream);
+            shell = new KomodoShell(KEngine.getInstance(), inStream, outStream);
         }
 
         @Override
@@ -64,6 +66,8 @@ public class KomodoConsole extends IOConsole {
             } catch (Exception ex) {
                 if (! outStream.checkError())
                     outStream.print(ex.getLocalizedMessage());
+
+                KLog.getLogger().error(ex.getLocalizedMessage(), ex);
             }
         }
 
