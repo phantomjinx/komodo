@@ -19,6 +19,7 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.nodetype.NodeType;
+import org.komodo.core.KomodoLexicon;
 import org.komodo.repository.RepositoryImpl.UnitOfWorkImpl;
 import org.komodo.spi.KException;
 import org.komodo.spi.constants.StringConstants;
@@ -541,6 +542,40 @@ public class ObjectImpl implements KomodoObject, StringConstants {
         }
     }
 
+    protected <T> T getObjectProperty(UnitOfWork uow, Class<T> propertyType,
+                                                     String getterName, String propertyPath) throws KException {
+        UnitOfWork transaction = uow;
+
+        if (transaction == null) {
+            transaction = getRepository().createTransaction(getClass().getSimpleName() + HYPHEN + getterName, true, null);
+        }
+
+        assert (transaction != null);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(getterName + ": transaction = '{0}'", transaction.getName()); //$NON-NLS-1$
+        }
+
+        try {
+            Property result = getProperty(transaction, propertyPath);
+
+            if (uow == null) {
+                transaction.commit();
+            }
+
+            if (result == null) {
+                return null;
+            }
+
+            if (String.class.equals(propertyType))
+                return (T)result.getStringValue();
+
+            return null;
+        } catch (final Exception e) {
+            throw handleError(uow, transaction, e);
+        }
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1020,6 +1055,33 @@ public class ObjectImpl implements KomodoObject, StringConstants {
                     node.setProperty(name, PropertyImpl.createValue(factory, values[0]));
                 }
             }
+        }
+    }
+
+    protected void setObjectProperty(UnitOfWork uow, String setterName, String propertyName,
+                                            Object value) throws KException {
+        UnitOfWork transaction = uow;
+
+        if (transaction == null) {
+            transaction = getRepository().createTransaction(getClass().getSimpleName() + HYPHEN + setterName, false, null); 
+        }
+
+        assert (transaction != null);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(setterName + ": transaction = '{0}', value = '{1}'", //$NON-NLS-1$
+                         transaction.getName(),
+                         value);
+        }
+
+        try {
+            setProperty(transaction, KomodoLexicon.VdbModel.MODEL_DEFINITION, value);
+
+            if (uow == null) {
+                transaction.commit();
+            }
+        } catch (final Exception e) {
+            throw handleError(uow, transaction, e);
         }
     }
 
