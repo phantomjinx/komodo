@@ -113,4 +113,8 @@ public final class WorkspaceImpl extends RelationalObjectImpl implements Workspa
             throw handleError(uow, transaction, e);
         }        
     }
+
+    Teiid addTeiid(UnitOfWork uow, String id) {
+
+    }
 }

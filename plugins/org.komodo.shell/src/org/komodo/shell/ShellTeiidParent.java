@@ -54,12 +54,12 @@ public class ShellTeiidParent implements TeiidParent, IShellTeiidParent {
 
     @Override
     public String getId() {
-        return null;
+        return "Shell Teiid Parent"; //$NON-NLS-1$
     }
 
     @Override
     public String getName() {
-        return null;
+        return getId();
     }
 
     @Override
