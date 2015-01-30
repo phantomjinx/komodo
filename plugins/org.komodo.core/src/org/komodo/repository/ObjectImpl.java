@@ -19,6 +19,7 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.nodetype.NodeType;
+import org.komodo.repository.Messages.Komodo;
 import org.komodo.repository.RepositoryImpl.UnitOfWorkImpl;
 import org.komodo.spi.KException;
 import org.komodo.spi.constants.StringConstants;
@@ -553,8 +554,10 @@ public class ObjectImpl implements KomodoObject, StringConstants {
      *
      * @throws KException
      */
-    protected <T> T getObjectProperty(UnitOfWork uow, Property.ValueType returnValueType,
-                                                     String getterName, String propertyPath) throws KException {
+    protected < T > T getObjectProperty( UnitOfWork uow,
+                                         Property.ValueType returnValueType,
+                                         String getterName,
+                                         String propertyPath ) throws KException {
         UnitOfWork transaction = uow;
 
         if (transaction == null) {
@@ -568,35 +571,43 @@ public class ObjectImpl implements KomodoObject, StringConstants {
         }
 
         try {
-            Property result = getProperty(transaction, propertyPath);
+            T result = null;
+            Property property = getProperty(transaction, propertyPath);
+
+            if (property != null) {
+                switch (returnValueType) {
+                    case STRING:
+                        result = (T)property.getStringValue(transaction);
+                        break;
+                    case LONG:
+                        result = (T)Long.valueOf(property.getLongValue(transaction));
+                        break;
+                    case INTEGER:
+                        result = (T)Integer.valueOf(Long.valueOf(property.getLongValue(transaction)).intValue());
+                        break;
+                    case BIG_DECIMAL:
+                        result = (T)property.getDecimalValue(transaction);
+                        break;
+                    case DOUBLE:
+                        result = (T)Double.valueOf(property.getDoubleValue(transaction));
+                        break;
+                    case BOOLEAN:
+                        result = (T)Boolean.valueOf(property.getBooleanValue(transaction));
+                        break;
+                    case CALENDAR:
+                        result = (T)property.getDateValue(transaction);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException(
+                                                                "Further property types should be added for support in this method"); //$NON-NLS-1$
+                }
+            }
 
             if (uow == null) {
                 transaction.commit();
             }
 
-            if (result == null) {
-                return null;
-            }
-
-            switch (returnValueType) {
-                case STRING:
-                    return (T) result.getStringValue();
-                case LONG:
-                    return (T) Long.valueOf(result.getLongValue());
-                case INTEGER:
-                    return (T) Integer.valueOf(Long.valueOf(result.getLongValue()).intValue());
-                case BIG_DECIMAL:
-                    return (T) result.getDecimalValue();
-                case DOUBLE:
-                    return (T) Double.valueOf(result.getDoubleValue());
-                case BOOLEAN:
-                    return (T) Boolean.valueOf(result.getBooleanValue());
-                case CALENDAR:
-                    return (T) result.getDateValue();
-                default:
-                    throw new UnsupportedOperationException("Further property types should be added for support in this method"); //$NON-NLS-1$
-            }
-
+            return result;
         } catch (final Exception e) {
             throw handleError(uow, transaction, e);
         }
@@ -625,7 +636,7 @@ public class ObjectImpl implements KomodoObject, StringConstants {
 
             if (node.hasProperty(name)) {
                 final javax.jcr.Property jcrProperty = node.getProperty(name);
-                result = new PropertyImpl(this.repository, jcrProperty);
+                result = new PropertyImpl(this.repository, jcrProperty.getPath());
             }
 
             if (uow == null) {
@@ -1165,6 +1176,99 @@ public class ObjectImpl implements KomodoObject, StringConstants {
     @Override
     public String toString() {
         return this.path;
+    }
+
+    /**
+     * @param uow
+     *        the transaction (can be <code>null</code> if update should be automatically committed)
+     * @param workspacePath
+     *        the workspace path of the object being validated (cannot be empty)
+     * @param name
+     *        the name of the property being validated (cannot be empty)
+     * @param expectedValue
+     *        the expected value or <code>null</code> if the property should not exist
+     * @throws KException
+     *         if an error occurs or if the property value is not the expected value
+     */
+    protected void validatePropertyValue( final UnitOfWork uow,
+                                          final String workspacePath,
+                                          final String name,
+                                          final Object expectedValue ) throws KException {
+        ArgCheck.isNotEmpty(workspacePath, "workspacePath"); //$NON-NLS-1$
+        ArgCheck.isNotEmpty(name, "name"); //$NON-NLS-1$
+
+        UnitOfWork transaction = uow;
+
+        if (uow == null) {
+            transaction = getRepository().createTransaction("relationalobjectimple-validatePropertyValue", true, null); //$NON-NLS-1$
+        }
+
+        assert (transaction != null);
+
+        try {
+            boolean valid = true;
+            final Property property = getProperty(transaction, name);
+
+            if (property == null) {
+                if (expectedValue != null) {
+                    valid = ((expectedValue instanceof String) && StringUtils.isBlank((String)expectedValue));
+                }
+            } else {
+                valid = property.getValue(transaction).equals(expectedValue);
+            }
+
+            if (!valid) {
+                throw new KException(Messages.getString(Komodo.INVALID_PROPERTY_VALUE, workspacePath, name));
+            }
+
+            if (uow == null) {
+                transaction.commit();
+            }
+        } catch (final Exception e) {
+            throw handleError(uow, transaction, e);
+        }
+    }
+
+    /**
+     * @param uow
+     *        the transaction (can be <code>null</code> if update should be automatically committed)
+     * @param workspacePath
+     *        the workspace path of the object being validated (cannot be empty)
+     * @param types
+     *        the primary type or descriptor names that the object must have (cannot be <code>null</code> or empty or have a
+     *        <code>null</code> element)
+     * @throws KException
+     *         if an error occurs or if object does not have all the specified types
+     */
+    protected void validateType( final UnitOfWork uow,
+                                 final String workspacePath,
+                                 final String... types ) throws KException {
+
+        ArgCheck.isNotEmpty(workspacePath, "workspacePath"); //$NON-NLS-1$
+        ArgCheck.isNotEmpty(types, "types"); //$NON-NLS-1$
+        UnitOfWork transaction = uow;
+
+        if (transaction == null) {
+            transaction = getRepository().createTransaction("relationalobjectimple-validateType", true, null); //$NON-NLS-1$
+        }
+
+        assert (transaction != null);
+
+        try {
+            for (final String type : types) {
+                ArgCheck.isNotEmpty(type, "type"); //$NON-NLS-1$
+
+                if (!hasDescriptor(transaction, type) && !type.equals(getPrimaryType(transaction).getName())) {
+                    throw new KException(Messages.getString(Komodo.INCORRECT_TYPE, workspacePath, getClass().getSimpleName()));
+                }
+            }
+
+            if (uow == null) {
+                transaction.commit();
+            }
+        } catch (final Exception e) {
+            throw handleError(uow, transaction, e);
+        }
     }
 
     @Override

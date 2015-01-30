@@ -453,13 +453,13 @@ public abstract class RepositoryImpl implements Repository, StringConstants {
                                  final ValueFactory factory ) throws Exception {
         for (final String name : komodoObject.getPropertyNames(uow)) {
             final Property prop = komodoObject.getProperty(uow, name);
-            final int type = PropertyDescriptorImpl.convert(prop.getDescriptor().getType());
+            final int type = PropertyDescriptorImpl.convert(prop.getDescriptor(uow).getType());
 
-            if (prop.getDescriptor().isMultiple()) {
-                final Value[] values = PropertyImpl.createValues(factory, prop.getValues(), type);
+            if (prop.getDescriptor(uow).isMultiple()) {
+                final Value[] values = PropertyImpl.createValues(factory, prop.getValues(uow), type);
                 node.setProperty(name, values);
             } else {
-                final Value value = PropertyImpl.createValue(factory, prop.getValue(), type);
+                final Value value = PropertyImpl.createValue(factory, prop.getValue(uow), type);
                 node.setProperty(name, value);
             }
         }

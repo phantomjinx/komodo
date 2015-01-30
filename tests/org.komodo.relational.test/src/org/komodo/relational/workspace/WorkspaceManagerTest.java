@@ -29,7 +29,7 @@ public final class WorkspaceManagerTest extends RelationalModelTest {
 
     @BeforeClass
     public static void obtainWorkspaceManager() {
-        _mgr = WorkspaceManager.getInstance(_repo);
+        _mgr = getWorkspaceManager();
     }
 
     private Model createModel( final UnitOfWork uow,
