@@ -134,7 +134,8 @@ public class WorkspaceManager {
                                            final Exception e ) {
         assert (e != null);
         assert ((transactionParameter == null) && (transactionVariable != null))
-               || ((transactionParameter != null) && (transactionVariable == null));
+               || ((transactionParameter != null) && (transactionVariable == null))
+               || ((transactionParameter == transactionVariable));
 
         if (transactionParameter == null) {
             transactionVariable.rollback();

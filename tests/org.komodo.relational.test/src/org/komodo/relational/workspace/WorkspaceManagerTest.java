@@ -10,7 +10,8 @@ package org.komodo.relational.workspace;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.komodo.core.KomodoLexicon;
 import org.komodo.relational.RelationalModelTest;
@@ -25,11 +26,16 @@ import org.modeshape.sequencer.teiid.lexicon.VdbLexicon;
 @SuppressWarnings( {"javadoc", "nls"} )
 public final class WorkspaceManagerTest extends RelationalModelTest {
 
-    private static WorkspaceManager _mgr;
+    protected WorkspaceManager _wsMgr;
 
-    @BeforeClass
-    public static void obtainWorkspaceManager() {
-        _mgr = getWorkspaceManager();
+    @Before
+    public void initWorkspaceManager() {
+        _wsMgr = WorkspaceManager.getInstance(_repo);
+    }
+
+    @After
+    public void cleanup() {
+        _wsMgr = null;
     }
 
     private Model createModel( final UnitOfWork uow,
@@ -41,7 +47,7 @@ public final class WorkspaceManagerTest extends RelationalModelTest {
             transaction = _repo.createTransaction(this.name.getMethodName(), false, null);
         }
 
-        final Model model = _mgr.createModel(transaction, parent, modelName);
+        final Model model = _wsMgr.createModel(transaction, parent, modelName);
 
         if (uow == null) {
             transaction.commit();
@@ -63,7 +69,7 @@ public final class WorkspaceManagerTest extends RelationalModelTest {
         }
 
         final String externalFilePath = "extPath";
-        final Vdb vdb = _mgr.createVdb(transaction, parent, vdbName, externalFilePath);
+        final Vdb vdb = _wsMgr.createVdb(transaction, parent, vdbName, externalFilePath);
 
         if (uow == null) {
             transaction.commit();
@@ -95,15 +101,15 @@ public final class WorkspaceManagerTest extends RelationalModelTest {
     public void shouldDeleteModel() throws Exception {
         final Vdb parent = createVdb(null, null, this.name.getMethodName() + "Vdb");
         final Model model = createModel(null, parent, this.name.getMethodName() + "Model");
-        _mgr.delete(null, model);
-        assertThat(_mgr.findModels(null).length, is(0));
+        _wsMgr.delete(null, model);
+        assertThat(_wsMgr.findModels(null).length, is(0));
     }
 
     @Test
     public void shouldDeleteVdb() throws Exception {
         final Vdb vdb = createVdb(null, null, "vdb");
-        _mgr.delete(null, vdb);
-        assertThat(_mgr.findVdbs(null).length, is(0));
+        _wsMgr.delete(null, vdb);
+        assertThat(_wsMgr.findVdbs(null).length, is(0));
     }
 
     @Test
@@ -124,7 +130,7 @@ public final class WorkspaceManagerTest extends RelationalModelTest {
             createModel(null, folder, (prefix + ++suffix));
         }
 
-        assertThat(_mgr.findModels(null).length, is(suffix));
+        assertThat(_wsMgr.findModels(null).length, is(suffix));
     }
 
     @Test
@@ -144,47 +150,47 @@ public final class WorkspaceManagerTest extends RelationalModelTest {
             createVdb(null, parent, (prefix + ++suffix));
         }
 
-        assertThat(_mgr.findVdbs(null).length, is(suffix));
+        assertThat(_wsMgr.findVdbs(null).length, is(suffix));
     }
 
     @Test( expected = KException.class )
     public void shouldNotAllowEmptyExternalFilePath() throws Exception {
-        _mgr.createVdb(null, null, "vdbName", StringConstants.EMPTY_STRING);
+        _wsMgr.createVdb(null, null, "vdbName", StringConstants.EMPTY_STRING);
     }
 
     @Test( expected = KException.class )
     public void shouldNotAllowEmptyVdbName() throws Exception {
-        _mgr.createVdb(null, null, StringConstants.EMPTY_STRING, "externalFilePath");
+        _wsMgr.createVdb(null, null, StringConstants.EMPTY_STRING, "externalFilePath");
     }
 
     @Test( expected = KException.class )
     public void shouldNotAllowNullExternalFilePath() throws Exception {
-        _mgr.createVdb(null, null, "vdbName", null);
+        _wsMgr.createVdb(null, null, "vdbName", null);
     }
 
     @Test( expected = KException.class )
     public void shouldNotAllowNullVdbName() throws Exception {
-        _mgr.createVdb(null, null, null, "externalFilePath");
+        _wsMgr.createVdb(null, null, null, "externalFilePath");
     }
 
     @Test
     public void shouldNotFindModelsWhenWorkspaceIsEmpty() throws Exception {
-        assertThat(_mgr.findModels(null).length, is(0));
+        assertThat(_wsMgr.findModels(null).length, is(0));
     }
 
     @Test
     public void shouldNotFindSchemasWhenWorkspaceIsEmpty() throws Exception {
-        assertThat(_mgr.findSchemas(null).length, is(0));
+        assertThat(_wsMgr.findSchemas(null).length, is(0));
     }
 
     @Test
     public void shouldNotFindTeiidsWhenWorkspaceIsEmpty() throws Exception {
-        assertThat(_mgr.findTeiids(null).isEmpty(), is(true));
+        assertThat(_wsMgr.findTeiids(null).isEmpty(), is(true));
     }
 
     @Test
     public void shouldNotFindVdbsWhenWorkspaceIsEmpty() throws Exception {
-        assertThat(_mgr.findVdbs(null).length, is(0));
+        assertThat(_wsMgr.findVdbs(null).length, is(0));
     }
 
 }

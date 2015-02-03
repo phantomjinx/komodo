@@ -19,6 +19,7 @@ import org.komodo.relational.model.Model;
 import org.komodo.relational.model.Procedure;
 import org.komodo.relational.model.Table;
 import org.komodo.relational.model.View;
+import org.komodo.relational.workspace.WorkspaceManager;
 import org.komodo.spi.KException;
 
 @SuppressWarnings( {"javadoc", "nls"} )
@@ -30,7 +31,8 @@ public final class ModelImplTest extends RelationalModelTest {
 
     @Before
     public void init() throws Exception {
-        this.modelObject = getWorkspaceManager().createModel(null, null, NAME);
+        WorkspaceManager _wsMgr = WorkspaceManager.getInstance(_repo);
+        this.modelObject = _wsMgr.createModel(null, null, NAME);
     }
 
     @Test
