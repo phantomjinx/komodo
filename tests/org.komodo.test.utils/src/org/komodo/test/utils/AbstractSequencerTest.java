@@ -184,7 +184,7 @@ public abstract class AbstractSequencerTest extends MultiUseAbstractTest impleme
         assertNotNull(manager);
 
         final CountDownLatch updateLatch = new CountDownLatch(countdown);
-        manager.addEventListener(new SequencerListener(pathsToBeSequenced, updateLatch), NODE_SEQUENCED, null, true, null, null, false);
+        manager.addEventListener(new NodePathListener(pathsToBeSequenced, updateLatch), NODE_SEQUENCED, null, true, null, null, false);
 
         return updateLatch;
     }
