@@ -37,7 +37,6 @@ Bundle-ClassPath: .,
  lib/modeshape-jcr-api.jar,
  lib/modeshape-jcr.jar,
  lib/modeshape-schematic.jar,
- lib/modeshape-sequencer-ddl.jar,
  lib/modeshape-sequencer-teiid.jar,
  lib/slf4j-api.jar,
  lib/tika-core.jar

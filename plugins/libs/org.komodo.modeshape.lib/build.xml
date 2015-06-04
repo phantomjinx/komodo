@@ -21,7 +21,7 @@
 		 						 modeshape-jcr-api.jar,
 								 modeshape-common.jar,
 								 modeshape-schematic.jar,
-								 modeshape-sequencer-ddl.jar,
+								 ../forked/modeshape-sequencer-ddl/src/main,
 								 modeshape-sequencer-teiid.jar,
 								 modeshape-jcr.jar,
 								 infinispan-cachestore-leveldb.jar,
