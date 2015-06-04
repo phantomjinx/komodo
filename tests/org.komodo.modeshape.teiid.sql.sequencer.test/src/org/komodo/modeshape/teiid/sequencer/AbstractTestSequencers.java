@@ -188,100 +188,6 @@ public abstract class AbstractTestSequencers extends AbstractTSqlSequencerTest {
         verifyUnaryFromClauseGroup(fromClause, JoinPredicate.LEFT_CLAUSE_REF_NAME, "C");
     }
 
-    private interface MaterializedOptions {
-
-        /**
-         * Whether table is materialized
-         */
-        String MATERIALIZED = "MATERIALIZED";
-
-        /**
-         * Materialized table
-         */
-        String MATERIALIZED_TABLE = "MATERIALIZED_TABLE";
-
-        /**
-         * Whether table is updateable
-         */
-        String UPDATABLE = "UPDATABLE";
-
-        /**
-         * Allow Teiid based management
-         */
-        String ALLOW_MATVIEW_MANAGEMENT = "teiid_rel:ALLOW_MATVIEW_MANAGEMENT";
-
-        /**
-         * Fully qualified Status Table Name defined above
-         */
-        String MATVIEW_STATUS_TABLE = "teiid_rel:MATVIEW_STATUS_TABLE";
-
-        /**
-         * Semi-colon(;) separated DDL/DML commands to run
-         * before the actual load of the cache, typically used to
-         * truncate staging table
-         */
-        String MATVIEW_BEFORE_LOAD_SCRIPT = "teiid_rel:MATVIEW_BEFORE_LOAD_SCRIPT";
-
-        /**
-         * semi-colon(;) separated DDL/DML commands to run for
-         * loading of the cache
-         */
-        String MATVIEW_LOAD_SCRIPT = "teiid_rel:MATVIEW_LOAD_SCRIPT";
-
-        /**
-         * semi-colon(;) separated DDL/DML commands to run after
-         * the actual load of the cache. Typically used to rename
-         * staging table to actual cache table. Required when
-         * MATVIEW_LOAD_SCRIPT not defined to copy data from
-         * teiid_rel:MATVIEW_STAGE_TABLE to MATVIEW table
-         */
-        String MATVIEW_AFTER_LOAD_SCRIPT = "teiid_rel:MATVIEW_AFTER_LOAD_SCRIPT";
-
-        /**
-         * Allowed values are {NONE, VDB, SCHEMA}, which define
-         * if the cached contents are shared among different VDB
-         * versions and different VDBs as long as schema names match
-         */
-        String MATVIEW_SHARE_SCOPE = "teiid_rel:MATVIEW_SHARE_SCOPE";
-
-        /**
-         * When MATVIEW_LOAD_SCRIPT property not defined, Teiid
-         * loads the cache contents into this table.
-         * Required when MATVIEW_LOAD_SCRIPT not defined
-         */
-        String MATERIALIZED_STAGE_TABLE = "teiid_rel:MATERIALIZED_STAGE_TABLE";
-
-        /**
-         * DML commands to run start of vdb
-         */
-        String ON_VDB_START_SCRIPT = "teiid_rel:ON_VDB_START_SCRIPT";
-
-        /**
-         * DML commands to run at VDB un-deploy; typically
-         * used for cleaning the cache/status tables
-         */
-        String ON_VDB_DROP_SCRIPT = "teiid_rel:ON_VDB_DROP_SCRIPT";
-
-        /**
-         * Action to be taken when mat view contents are
-         * requested but cache is invalid. Allowed values
-         * are
-         *
-         * THROW_EXCEPTION = throws an exception,
-         * IGNORE = ignores the warning and supplied invalidated data,
-         * WAIT = waits until the data is refreshed and valid
-         *              then provides the updated data)
-         */
-        String MATVIEW_ONERROR_ACTION = "teiid_rel:MATVIEW_ONERROR_ACTION";
-
-        /**
-         * Time to live in milliseconds. Provide property or
-         * cache hint on view transformation - property takes
-         * precedence.
-         */
-        String MATVIEW_TTL = "teiid_rel:MATVIEW_TTL";
-    }
-
     @Test(timeout=300000)
     public void testMaterializedStatement() throws Exception {
         StringBuffer ddl = new StringBuffer();
@@ -315,40 +221,40 @@ public abstract class AbstractTestSequencers extends AbstractTSqlSequencerTest {
         // DDL Sequencer creates the 'stock view' node
         Node stockViewNode = verify(fileNode, "stockPricesMatView", TeiidDdlLexicon.CreateTable.VIEW_STATEMENT);
 
-        Node option = verify(stockViewNode, enc(MaterializedOptions.ALLOW_MATVIEW_MANAGEMENT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        Node option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.ALLOW_MATVIEW_MANAGEMENT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, Boolean.TRUE.toString().toLowerCase());
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATVIEW_SHARE_SCOPE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATVIEW_SHARE_SCOPE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "NONE");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATVIEW_AFTER_LOAD_SCRIPT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATVIEW_AFTER_LOAD_SCRIPT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "execute accounts.native('''')");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATVIEW_TTL), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATVIEW_TTL), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, 120000);
 
-        option = verify(stockViewNode, enc(MaterializedOptions.ON_VDB_DROP_SCRIPT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.ON_VDB_DROP_SCRIPT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "DELETE FROM Accounts.status WHERE Name=''stock'' AND schemaname = ''Stocks''");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATERIALIZED_STAGE_TABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATERIALIZED_STAGE_TABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "Accounts.h2_stock_mat");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATERIALIZED_TABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATERIALIZED_TABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "Accounts.h2_stock_mat");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.UPDATABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.UPDATABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, Boolean.TRUE.toString().toUpperCase());
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATVIEW_BEFORE_LOAD_SCRIPT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATVIEW_BEFORE_LOAD_SCRIPT), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "execute accounts.native(''truncate table h2_stock_mat'');");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATVIEW_STATUS_TABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATVIEW_STATUS_TABLE), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "status");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATVIEW_ONERROR_ACTION), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATVIEW_ONERROR_ACTION), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, "THROW_EXCEPTION");
 
-        option = verify(stockViewNode, enc(MaterializedOptions.MATERIALIZED), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
+        option = verify(stockViewNode, enc(TeiidDdlLexicon.MaterializedOptions.MATERIALIZED), StandardDdlLexicon.TYPE_STATEMENT_OPTION);
         verifyProperty(option, StandardDdlLexicon.VALUE, Boolean.TRUE.toString().toUpperCase());
 
         Node queryNode = verify(stockViewNode, Query.ID, Query.ID);

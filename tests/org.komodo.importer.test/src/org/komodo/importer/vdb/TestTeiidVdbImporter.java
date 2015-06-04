@@ -1306,14 +1306,102 @@ public class TestTeiidVdbImporter extends AbstractImporterTest {
         verifyProperty(oracleModel, VdbLexicon.Model.METADATA_TYPE, "DDL");
         assertEquals(1, oracleModel.getSources(uow).length);
 
-        // Ddl Sequenced
-        verify(oracleModel, "CUSTOMER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
-        verify(oracleModel, "LINEITEM", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
-        verify(oracleModel, "NATION", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
-        verify(oracleModel, "ORDERS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
-        verify(oracleModel, "PARTS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
-        verify(oracleModel, "PARTSUPP", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
-        verify(oracleModel, "REGION", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
-        verify(oracleModel, "SUPPLIER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);        
+        KomodoObject customer = verify(oracleModel, "CUSTOMER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(customer, "C_CUSTKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(customer, "C_NAME", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(customer, "C_ADDRESS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(customer, "C_NATIONKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(customer, "C_PHONE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(customer, "C_ACCTBAL", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(customer, "C_MKTSEGMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(customer, "C_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+
+        KomodoObject lineitem = verify(oracleModel, "LINEITEM", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(lineitem, "L_ORDERKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_PARTKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_SUPPKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_LINENUMBER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_QUANTITY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_EXTENDEDPRICE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_DISCOUNT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_TAX", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_RETURNFLAG", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_LINESTATUS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_SHIPDATE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_COMMITDATE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_RECEIPTDATE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_SHIPINSTRUCT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_SHIPMODE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(lineitem, "L_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+
+        KomodoObject nation = verify(oracleModel, "NATION", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(nation, "N_NATIONKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(nation, "N_NAME", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(nation, "N_REGIONKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(nation, "N_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        
+        KomodoObject orders = verify(oracleModel, "ORDERS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(orders, "O_ORDERKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_CUSTKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_ORDERSTATUS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_TOTALPRICE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_ORDERDATE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_ORDERPRIORITY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_CLERK", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_SHIPPRIORITY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(orders, "O_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+
+        KomodoObject part = verify(oracleModel, "PART", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(part, "P_PARTKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_NAME", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_MFGR", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_BRAND", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_TYPE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_SIZE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_CONTAINER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_RETAILPRICE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(part, "P_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+
+        KomodoObject partsupp = verify(oracleModel, "PARTSUPP", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(partsupp, "PS_PARTKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(partsupp, "PS_SUPPKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(partsupp, "PS_AVAILQTY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(partsupp, "PS_SUPPLYCOST", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(partsupp, "PS_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+
+        KomodoObject region = verify(oracleModel, "REGION", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(region, "R_REGIONKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(region, "R_NAME", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(region, "R_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+
+        KomodoObject supplier = verify(oracleModel, "SUPPLIER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);        
+        verify(supplier, "S_SUPPKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(supplier, "S_NAME", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(supplier, "S_ADDRESS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(supplier, "S_NATIONKEY", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(supplier, "S_PHONE", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(supplier, "S_ACCTBAL", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+        verify(supplier, "S_COMMENT", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_ELEMENT);
+
+        //
+        // postgresql model
+        //
+        child = vdb.getChild(uow, "postgresql");
+        assertNotNull(child);
+        Model psqlModel = manager.resolve(uow, child, Model.class);
+        verifyProperty(psqlModel, "importer.schemaPattern", "public");
+        verifyProperty(psqlModel, "importer.tableTypes", "TABLE");
+        verifyProperty(psqlModel, "importer.useFullSchemaName", "false");
+        verifyProperty(psqlModel, VdbLexicon.Model.METADATA_TYPE, "NATIVE,DDL");
+        assertEquals(1, oracleModel.getSources(uow).length);
+
+        customer = verify(psqlModel, "customer", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
+        lineitem = verify(psqlModel, "lineitem", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
+        nation = verify(psqlModel, "nation", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
+        orders = verify(psqlModel, "orders", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
+        part = verify(psqlModel, "part", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
+        partsupp = verify(psqlModel, "partsupp", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
+        region = verify(psqlModel, "region", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
+        supplier = verify(psqlModel, "supplier", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.AlterOptions.TABLE_STATEMENT);
     }
 }
