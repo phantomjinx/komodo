@@ -117,6 +117,9 @@ public class TestTeiidVdbImporter extends AbstractImporterTest {
     private static final String PORTFOLIO_VDB = "portfolio-vdb.xml";
     private static final String PORTFOLIO_VDB_NAME = "Portfolio";
 
+    private static final String TPCH_VDB = "tpch-vdb.xml";
+    private static final String TPCH_VDB_NAME = "tpch";
+
     private static final String BOOKS_EXAMPLE_FULL = "books.xml";
     private static final String BOOKS_EXAMPLE_PROPS_ONLY = "books_props_only.xml";
     private static final String BOOKS_EXAMPLE_SOURCE_MODEL_ONLY = "books_source_model_only.xml";
@@ -1147,8 +1150,7 @@ public class TestTeiidVdbImporter extends AbstractImporterTest {
         String desc = vdb.getDescription(uow);
         assertEquals("Customer Dynamic VDB", desc);
 
-        assertNotNull(vdb.getProperty(this.uow, "UseConnectorMetadata"));
-        assertEquals("true", vdb.getProperty(this.uow, "UseConnectorMetadata").getValue(this.uow).toString());
+        verifyProperty(vdb, "UseConnectorMetadata", "true");
 
         Model[] models = vdb.getModels(uow);
         assertEquals(1, models.length);
@@ -1246,8 +1248,7 @@ public class TestTeiidVdbImporter extends AbstractImporterTest {
         String desc = vdb.getDescription(uow);
         assertEquals("The Portfolio Dynamic VDB", desc);
 
-        assertNotNull(vdb.getProperty(this.uow, "UseConnectorMetadata"));
-        assertEquals("true", vdb.getProperty(this.uow, "UseConnectorMetadata").getValue(this.uow).toString());
+        verifyProperty(vdb, "UseConnectorMetadata", "true");
 
         Model[] models = vdb.getModels(uow);
         assertEquals(5, models.length);
@@ -1258,5 +1259,61 @@ public class TestTeiidVdbImporter extends AbstractImporterTest {
 
         // Ddl Sequenced
         verify(model, "stockPricesMatView", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.VIEW_STATEMENT);
+    }
+
+    @Test
+    public void testTpchVdb() throws Exception {
+        InputStream vdbStream = TestUtilities.getResourceAsStream(getClass(),
+                                                                  VDB_DIRECTORY, TPCH_VDB);
+
+        // Options for the import (default)
+        ImportOptions importOptions = new ImportOptions();
+        importOptions.setOption(OptionKeys.NAME, TPCH_VDB_NAME);
+
+        // Saves Messages during import
+        ImportMessages importMessages = new ImportMessages();
+
+        KomodoObject vdbNode = executeImporter(vdbStream, ImportType.VDB, importOptions,
+                                                                           importMessages);
+
+        // Test that a vdb was created
+        assertNotNull("Failed - No Vdb Created ", vdbNode);
+
+        // Test vdb name
+        String vdbName = vdbNode.getName(uow);
+        assertEquals(importOptions.getOption(OptionKeys.NAME), vdbName);
+
+        assertNotNull(vdbNode);
+
+        WorkspaceManager manager = WorkspaceManager.getInstance(_repo);
+        Vdb vdb = manager.resolve(uow, vdbNode, Vdb.class);
+
+        assertNotNull(vdb);
+
+        Model[] models = vdb.getModels(uow);
+        assertEquals(4, models.length);
+
+        //
+        // oracle model
+        //
+        KomodoObject child = vdb.getChild(uow, "oracle");
+        assertNotNull(child);
+        Model oracleModel = manager.resolve(uow, child, Model.class);
+        verifyProperty(oracleModel, "importer.schemaPattern", "TPCH");
+        verifyProperty(oracleModel, "importer.tableTypes", "TABLE");
+        verifyProperty(oracleModel, "importer.useFullSchemaName", "false");
+        verifyProperty(oracleModel, "importer.importKeys", "false");
+        verifyProperty(oracleModel, VdbLexicon.Model.METADATA_TYPE, "DDL");
+        assertEquals(1, oracleModel.getSources(uow).length);
+
+        // Ddl Sequenced
+        verify(oracleModel, "CUSTOMER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(oracleModel, "LINEITEM", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(oracleModel, "NATION", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(oracleModel, "ORDERS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(oracleModel, "PARTS", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(oracleModel, "PARTSUPP", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(oracleModel, "REGION", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);
+        verify(oracleModel, "SUPPLIER", JcrConstants.NT_UNSTRUCTURED, TeiidDdlLexicon.CreateTable.TABLE_STATEMENT);        
     }
 }
