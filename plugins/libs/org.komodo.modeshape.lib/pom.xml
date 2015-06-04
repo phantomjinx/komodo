@@ -117,12 +117,13 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.basedir}/forked/modeshape-sequencer-ddl</outputDirectory>
+                            <outputDirectory>${project.basedir}/forked/</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.build.directory}/modeshape/sequencers/modeshape-sequencer-ddl</directory>
+                                    <directory>${project.build.directory}/modeshape/sequencers/</directory>
                                     <includes>
-                                        <include>**/src/main/**</include>
+                                        <include>**/modeshape-sequencer-ddl/src/main/**</include>
+                                        <include>**/modeshape-sequencer-teiid/src/main/**</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -266,11 +267,12 @@
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-ddl</artifactId>
         </dependency>
--->
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-teiid</artifactId>
         </dependency>
+
+-->
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-schematic</artifactId>

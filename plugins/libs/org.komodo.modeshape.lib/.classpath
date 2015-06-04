@@ -29,7 +29,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/modeshape-jcr-api.jar" sourcepath="libsrc/modeshape-jcr-api-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/modeshape-jcr.jar" sourcepath="libsrc/modeshape-jcr-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/modeshape-schematic.jar" sourcepath="libsrc/modeshape-schematic-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/modeshape-sequencer-teiid.jar" sourcepath="libsrc/modeshape-sequencer-teiid-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar" sourcepath="libsrc/api-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/tika-core.jar" sourcepath="libsrc/core-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
@@ -41,6 +40,16 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="forked/modeshape-sequencer-ddl/src/main/resources">
+		<attributes>
+			<attribute name="ignore_optional_problems" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="forked/modeshape-sequencer-teiid/src/main/java">
+		<attributes>
+			<attribute name="ignore_optional_problems" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="forked/modeshape-sequencer-teiid/src/main/resources">
 		<attributes>
 			<attribute name="ignore_optional_problems" value="true"/>
 		</attributes>
