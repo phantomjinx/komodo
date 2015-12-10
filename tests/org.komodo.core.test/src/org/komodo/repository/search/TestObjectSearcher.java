@@ -33,6 +33,7 @@ import org.komodo.core.KomodoLexicon.Search;
 import org.komodo.core.KomodoLexicon.Search.WhereClause;
 import org.komodo.modeshape.teiid.cnd.TeiidSqlLexicon;
 import org.komodo.repository.RepositoryImpl;
+import org.komodo.repository.RepositoryTools;
 import org.komodo.spi.repository.KomodoObject;
 import org.komodo.spi.repository.Property;
 import org.komodo.spi.repository.Repository.KeywordCriteria;

@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.komodo.core.KomodoLexicon.Search;
+import org.komodo.core.Messages;
 import org.komodo.spi.KException;
 import org.komodo.spi.query.sql.SQLConstants;
 import org.komodo.spi.repository.KomodoObject;
@@ -539,7 +540,7 @@ public class ObjectSearcher implements SQLConstants {
      *        {@link org.komodo.spi.repository.Repository.UnitOfWork.State#NOT_STARTED})
      * @param name the name of the search to read
      *
-     * @throws KException if error occurs
+     * @throws KException name is not a search in the repository or if another error occurs
      */
     public void read(UnitOfWork uow, String name) throws KException {
         ArgCheck.isNotNull(uow, "transaction"); //$NON-NLS-1$
@@ -549,6 +550,8 @@ public class ObjectSearcher implements SQLConstants {
 
         String parentPath = repository.komodoSearches(uow).getAbsolutePath();
         KomodoObject searchObject = repository.getFromWorkspace(uow, parentPath + FORWARD_SLASH + name);
+        if (searchObject == null)
+            throw new KException(Messages.getString(Messages.Search.No_Saved_Search, name));
 
         // Clear any existing data from this object searcher
         customWhereClause = null;
