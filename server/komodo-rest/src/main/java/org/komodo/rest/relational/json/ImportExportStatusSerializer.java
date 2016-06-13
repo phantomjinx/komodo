@@ -34,6 +34,9 @@ import com.google.gson.stream.JsonWriter;
  */
 public final class ImportExportStatusSerializer extends TypeAdapter< ImportExportStatus > {
 
+    private static final String DOWNLOADABLE_LENGTH_2 = "Downloadable Length 2";
+    private static final String DOWNLOADABLE_LENGTH_1 = "Downloadable Length 1";
+
     /**
      * {@inheritDoc}
      *
@@ -62,6 +65,12 @@ public final class ImportExportStatusSerializer extends TypeAdapter< ImportExpor
                     break;
                 case ImportExportStatus.CONTENT_LABEL:
                     status.setContent(in.nextString());
+                    break;
+                case DOWNLOADABLE_LENGTH_1:
+                    status.setDownloadableLength1(in.nextLong());
+                    break;
+                case DOWNLOADABLE_LENGTH_2:
+                    status.setDownloadableLength2(in.nextLong());
                     break;
                 default:
                     throw new IOException( Messages.getString( UNEXPECTED_JSON_TOKEN, name ) );
@@ -98,6 +107,12 @@ public final class ImportExportStatusSerializer extends TypeAdapter< ImportExpor
 
         out.name(ImportExportStatus.CONTENT_LABEL);
         out.value(value.getContent());
+
+        out.name(DOWNLOADABLE_LENGTH_1);
+        out.value(value.getDownloadableLength1());
+
+        out.name(DOWNLOADABLE_LENGTH_2);
+        out.value(value.getDownloadableLength2());
 
         out.endObject();
     }

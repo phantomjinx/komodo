@@ -466,6 +466,10 @@ public class KomodoRestV1Application extends Application implements RepositoryOb
         beanConfig.setScan(true);
     }
 
+    public KEngine getEngine() {
+        return kengine;
+    }
+
     /**
      * @return the default repository of this application.
      *            Should only be applicable for testing.

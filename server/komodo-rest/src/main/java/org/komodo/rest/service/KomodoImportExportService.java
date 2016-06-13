@@ -60,6 +60,7 @@ import org.komodo.spi.storage.StorageConnector.Attribute;
 import org.komodo.spi.storage.StorageReference;
 import org.komodo.spi.storage.StorageService;
 import org.komodo.utils.FileUtils;
+import org.komodo.utils.KLog;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -199,19 +200,7 @@ public class KomodoImportExportService extends KomodoService {
             //
             status.setDownloadable(downloadable != null);
 
-            if (downloadable != null) {
-                FileInputStream stream = null;
-                try {
-                    File downloadableFile = new File(downloadable);
-                    stream = new FileInputStream(downloadableFile);
-                    byte content[] = new byte[(int)downloadableFile.length()];
-                    stream.read(content);
-                    String encContent = encrypt(content);
-                    status.setContent(encContent);
-                } finally {
-                    stream.close();
-                }
-            }
+            setContent(status, downloadable);
 
             status.setSuccess(true);
 
@@ -225,6 +214,32 @@ public class KomodoImportExportService extends KomodoService {
             return createErrorResponse(mediaTypes, e,
                                        RelationalMessages.Error.IMPORT_EXPORT_SERVICE_EXPORT_ERROR,
                                        sta.getArtifactPath(), sta.getStorageType());
+        }
+    }
+
+    public void setContent(ImportExportStatus status, String downloadable) throws Exception {
+        if (downloadable != null) {
+            FileInputStream stream = null;
+            try {
+                File downloadableFile = new File(downloadable);
+                stream = new FileInputStream(downloadableFile);
+
+                status.setDownloadableLength1(downloadableFile.length());
+                status.setDownloadableLength2(stream.available());
+
+                byte content[] = new byte[(int)downloadableFile.length()];
+                stream.read(content);
+                String encContent = encrypt(content);
+                status.setContent(encContent);
+
+                KLog.getLogger().info("Encrypted content of " +
+                                    downloadableFile.getAbsolutePath() +
+                                    ": " + encContent +
+                                    " SIZE: " + downloadableFile.length());
+
+            } finally {
+                stream.close();
+            }
         }
     }
 

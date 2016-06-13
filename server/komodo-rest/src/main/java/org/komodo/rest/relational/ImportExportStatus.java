@@ -61,6 +61,10 @@ public class ImportExportStatus implements KRestEntity {
 
     private boolean success;
 
+    private long dlLength1;
+
+    private long dlLength2;
+
     @Override
     public boolean supports(MediaType mediaType) {
         return MediaType.APPLICATION_JSON_TYPE.equals(mediaType);
@@ -127,5 +131,21 @@ public class ImportExportStatus implements KRestEntity {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public long getDownloadableLength1() {
+        return this.dlLength1;
+    }
+
+    public void setDownloadableLength1(long length) {
+        this.dlLength1 = length;
+    }
+
+    public long getDownloadableLength2() {
+        return this.dlLength2;
+    }
+
+    public void setDownloadableLength2(long available) {
+        this.dlLength2 = available;
     }
 }

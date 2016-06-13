@@ -240,6 +240,7 @@ public class KomodoImportExportServiceTest extends AbstractKomodoServiceTest {
         this.response = request(uri).post(Entity.json(storageAttr));
         final String entity = this.response.readEntity(String.class);
         assertNotNull(entity);
+        System.out.println(entity);
         assertEquals(Response.Status.OK.getStatusCode(), this.response.getStatus());
 
         //
@@ -291,5 +292,33 @@ public class KomodoImportExportServiceTest extends AbstractKomodoServiceTest {
             String name = type.getName();
             assertTrue(name.equals("file") || name.equals("git"));
         }
+    }
+
+    @Test
+    public void blah() throws Exception {
+        String jbossTmp = "/opt/jboss/standalone/tmp";
+        File serverZipFile = new File(jbossTmp, "pgr.zip");
+        TestUtilities.testZipFile(serverZipFile);
+
+        KomodoImportExportService service = new KomodoImportExportService(getRestApp().getEngine());;
+
+        ImportExportStatus status = new ImportExportStatus();
+        service.setContent(status, serverZipFile.getAbsolutePath());
+
+        String enc = status.getContent();
+        System.out.println("Encoded Content: " + enc);
+        for (byte encByte : enc.getBytes())
+            System.out.print(encByte + COMMA);
+
+        System.out.println();
+
+        byte[] content = Base64.getDecoder().decode(enc);
+        for (byte contentByte : content)
+            System.out.print(contentByte + COMMA);
+
+        File zipFile = new File(FileUtils.tempDirectory(), "test.zip");
+        FileUtils.write(content, zipFile);
+        System.out.println(zipFile.getAbsolutePath());
+        TestUtilities.testZipFile(zipFile);
     }
 }
