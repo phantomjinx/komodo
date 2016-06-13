@@ -25,10 +25,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.komodo.osgi.AbstractProxyService;
 import org.komodo.spi.storage.StorageConnector;
 import org.komodo.spi.storage.StorageService;
+import org.komodo.spi.storage.StorageConnector.Attribute;
 import org.komodo.utils.KLog;
 import org.osgi.framework.BundleContext;
 
@@ -50,6 +52,11 @@ public class StorageProxyService extends AbstractProxyService<StorageService, St
     @Override
     public String getStorageId() throws Exception {
         return getDelegate().getStorageId();
+    }
+
+    @Override
+    public Set<Attribute> getAttributes() throws Exception {
+        return getDelegate().getAttributes();
     }
 
     @Override

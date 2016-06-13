@@ -38,6 +38,7 @@ import org.komodo.spi.runtime.version.DefaultTeiidVersion;
 import org.komodo.spi.runtime.version.DefaultTeiidVersion.Version;
 import org.komodo.spi.runtime.version.TeiidVersion;
 import org.komodo.spi.storage.StorageConnector;
+import org.komodo.spi.storage.StorageConnector.Attribute;
 import org.komodo.spi.storage.StorageService;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
@@ -236,5 +237,9 @@ public class TestPluginService extends AbstractTestPluginService implements Stri
         parameters.setProperty("repo-path-property", "http://github.com/test/blob.git");
         StorageConnector connector = storageService.getConnector(parameters);
         assertNotNull(connector);
+
+        Set<Attribute> attributes = connector.getAttributes();
+        assertNotNull(attributes);
+        assertEquals(4, attributes.size());
     }
 }

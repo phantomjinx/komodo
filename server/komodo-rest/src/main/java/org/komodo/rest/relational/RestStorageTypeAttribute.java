@@ -19,41 +19,55 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
  */
-package org.komodo.storage.git;
+package org.komodo.rest.relational;
 
-import java.util.Properties;
-import java.util.Set;
-import org.komodo.plugin.framework.AbstractBundleService;
-import org.komodo.spi.storage.StorageConnector;
-import org.komodo.spi.storage.StorageService;
 import org.komodo.spi.storage.StorageConnector.Attribute;
 
-public class StorageServiceImpl extends AbstractBundleService implements StorageService {
+public class RestStorageTypeAttribute {
 
-    public static final String STORAGE_ID = "git";
+    public static final String NAME_LABEL = "name";
 
-    public StorageServiceImpl(String parentBundle) {
-        super(parentBundle);
+    public static final String DESCRIPTION_LABEL = "description";
+
+    public static final String REQUIRED_LABEL = "required";
+
+    private String name;
+
+    private String description;
+
+    private boolean required;
+
+    public RestStorageTypeAttribute() {
+        super();
     }
 
-    @Override
-    public String getStorageId() {
-        return STORAGE_ID;
+    public RestStorageTypeAttribute(Attribute attribute) {
+        this.name = attribute.getName();
+        this.description = attribute.getDescription();
+        this.required = attribute.isRequired();
     }
 
-    @Override
-    public Set<Attribute> getAttributes() throws Exception {
-        return GitStorageConnector.ATTRIBUTES;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public StorageConnector getConnector(Properties parameters) throws Exception {
-        return new GitStorageConnector(parameters);
+    public void setName(String name) {
+        this.name = name;
     }
 
-    @Override
-    public void dispose() {
-        // Nothing required
+    public String getDescription() {
+        return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
 }
