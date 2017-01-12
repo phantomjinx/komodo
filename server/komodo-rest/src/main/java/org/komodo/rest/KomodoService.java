@@ -27,7 +27,6 @@ import static org.komodo.rest.Messages.General.GET_OPERATION_NAME;
 import static org.komodo.rest.relational.RelationalMessages.Error.SECURITY_FAILURE_ERROR;
 import java.io.StringWriter;
 import java.security.Principal;
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Context;
@@ -39,6 +38,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.Variant;
 import javax.ws.rs.core.Variant.VariantListBuilder;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
@@ -222,7 +222,7 @@ public abstract class KomodoService implements V1Constants {
         if (content == null)
             return null;
 
-        return Base64.getEncoder().encodeToString(content);
+        return DatatypeConverter.printBase64Binary(content);
     }
 
     /**
@@ -233,7 +233,7 @@ public abstract class KomodoService implements V1Constants {
         if (content == null)
             return null;
 
-        return Base64.getDecoder().decode(content);
+        return DatatypeConverter.parseBase64Binary(content);
     }
 
     protected WorkspaceManager getWorkspaceManager(UnitOfWork transaction) throws KException {
